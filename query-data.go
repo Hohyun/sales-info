@@ -119,13 +119,13 @@ func QuerySales(level int) {
 	defer db.Close()
 
 	switch level {
-	case 0:
-		sales(db)
 	case 1:
-		salesDomIntl(db)
+		sales(db)
 	case 2:
-		salesDomIntlSalesRefund(db)
+		salesDomIntl(db)
 	case 3:
+		salesDomIntlSalesRefund(db)
+	case 4:
 		salesDateDomIntlSalesRefund(db)
 	default:
 		sales(db)

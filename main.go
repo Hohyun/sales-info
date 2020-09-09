@@ -3,16 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	//"log"
-	//"os"
 )
 
 func main() {
 	ParseCmdLineFlags()
 	args := flag.Args()
 
-	fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgLvl)
-	fmt.Println(args)
+	// fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgLvl)
+	// fmt.Println(args)
 
 	if flgHelp || len(args) != 1 {
 		DisplayUsage()
