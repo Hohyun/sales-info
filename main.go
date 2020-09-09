@@ -14,7 +14,7 @@ func main() {
 	fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgLvl)
 	fmt.Println(args)
 
-	if flgHelp || len(args) !=1 {
+	if flgHelp || len(args) != 1 {
 		DisplayUsage()
 	}
 
@@ -24,11 +24,16 @@ func main() {
 	}
 
 	switch cmd {
-	case "convert": ConvertData(flgIn, flgOut)
-	case "import": fmt.Println("Import undefined")
-	case "export": fmt.Println("Export undefined")
-	case "query": QuerySales()
-	default: fmt.Println("What happen? I don't know.")
-		
+	case "convert":
+		ConvertData(flgIn, flgOut)
+	case "import":
+		ImportCsv(flgSrc)
+	case "export":
+		fmt.Println("Export undefined")
+	case "query":
+		QuerySales(flgLvl)
+	default:
+		fmt.Println("What happen? I don't know.")
+
 	}
 }
