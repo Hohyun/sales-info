@@ -3,14 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 )
 
 func main() {
 	ParseCmdLineFlags()
 	args := flag.Args()
-
+	c := ParseConfig()
 	// fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgRpt)
-	// fmt.Println(args)
+	// fmt.Printf("args: %v", args)
+	// fmt.Printf("%+v\n", c)
 
 	if flgHelp || len(args) != 1 {
 		DisplayUsage()
@@ -21,16 +23,31 @@ func main() {
 		DisplayUsage()
 	}
 
+	backend := strings.ToLower(c.Database)
 	switch cmd {
 	case "convert":
 		ConvertData(flgIn, flgOut)
 	case "import":
-		ImportCsv(flgSrc)
+		if backend == "postgresql" {
+			ImportCsvPG(flgSrc)
+		} else {
+
+			// ImportCsvSQ(flgSrc)
+		}
 	case "export":
-		fmt.Println("Export undefined")
+		if backend == "postgresql" {
+			ExportCsvPG(flgDst)
+		} else {
+			// ExportCsvSQ(flgDst)
+		}
 	case "query":
-		QuerySales(flgRpt)
+		if backend == "postgresql" {
+			QuerySalesPG(flgRpt)
+		} else {
+			// QuerySalesSQ(flgRpt)
+		}
 	default:
-		fmt.Println("What happen? I don't know.")
+		DisplayUsage()
 	}
+	fmt.Println("Bye!")
 }

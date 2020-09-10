@@ -1,4 +1,12 @@
 {
     "root_dir": "D:/Projects/sales-info",
-    "data_dir": "D:/Projects/sales-info/data"
+    "data_dir": "D:/Projects/sales-info/data",
+    "database": "PostgreSQL",
+    "pgconn": {
+        "host":"localhost",
+        "port": 5432,
+        "user": "hohyunkim",
+        "password": "Django121*",
+        "dbname": "selabd"
+    } 
 }

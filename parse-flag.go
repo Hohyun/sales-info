@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -17,19 +16,14 @@ var (
 	flgRpt  string
 )
 
-// Config is data struct for parsing config.json
-type Config struct {
-	RootDir string `json:"root_dir"`
-	DataDir string `json:"data_dir"`
-}
-
 // ParseCmdLineFlags is function parsing command line argument options
 func ParseCmdLineFlags() {
+	d := ParseConfig().DataDir
 	flag.BoolVar(&flgHelp, "help", false, "show help")
-	flag.StringVar(&flgIn, "in", path.Join(getDataDir(), "vectis_sales.csv"), ":convert: input file ")
-	flag.StringVar(&flgOut, "out", path.Join(getDataDir(), "sales_for_db.csv"), ":convert: output file")
-	flag.StringVar(&flgSrc, "src", path.Join(getDataDir(), "sales_for_db.csv"), ":import : source file")
-	flag.StringVar(&flgDst, "dst", path.Join(getDataDir(), "sales_info.xlsx"), ":export : output file")
+	flag.StringVar(&flgIn, "in", path.Join(d, "vectis_sales.csv"), ":convert: input file ")
+	flag.StringVar(&flgOut, "out", path.Join(d, "sales_for_db.csv"), ":convert: output file")
+	flag.StringVar(&flgSrc, "src", path.Join(d, "sales_for_db.csv"), ":import : source file")
+	flag.StringVar(&flgDst, "dst", path.Join(d, "sales_info.csv"), ":export : output file")
 	flag.StringVar(&flgRpt, "rpt", "table", ":query  : report type")
 	flag.Parse()
 }
@@ -40,18 +34,4 @@ func DisplayUsage() {
 	fmt.Println("                  [-src filename ] import | [-dst filename] export")
 	flag.PrintDefaults()
 	os.Exit(0)
-}
-
-func getDataDir() string {
-	f, err := os.Open("./config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	var c Config
-	dec := json.NewDecoder(f)
-	dec.Decode(&c)
-	// fmt.Printf("%+v\n", c)
-	return c.DataDir
 }

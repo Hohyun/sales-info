@@ -2,17 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "hohyunkim"
-	password = "Django121*"
-	dbname   = "selabd"
+	"os"
 )
 
 var (
@@ -29,9 +23,11 @@ var (
 	krwamt      float64
 )
 
-// ImportCsv copy csv file into database.
-func ImportCsv(srcFile string) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+// ImportCsvPG : copy csv file into database.
+func ImportCsvPG(srcFile string) {
+	c := ParseConfig().PGConn
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.DbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatal("Failed to open a DB connection: ", err)
@@ -51,6 +47,64 @@ func ImportCsv(srcFile string) {
 	}
 	affected2, _ := r2.RowsAffected()
 	fmt.Printf("Inserted: %d rows\n", affected2)
+}
+
+// ExportCsvPG : export sales results into csv file.
+func ExportCsvPG(dstFile string) {
+	// Open database
+	c := ParseConfig().PGConn
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.DbName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal("Failed to open a DB connection: ", err)
+	}
+	defer db.Close()
+
+	// Get data: Sale by date
+	rows, err := db.Query("select * from sales_by_date")
+	if err != nil {
+		panic(err)
+	}
+
+	var ss [][]string
+	ss = append(ss, []string{"Date", "Intl_sales", "Intl_refund", "Intl_total", "Dom_sales", "Dom_refund", "Dom_total", "G_total"})
+	for rows.Next() {
+		var s []string
+		err := rows.Scan(&salesdate, &isales, &irfnd, &itotal, &dsales, &drfnd, &dtotal, &gtotal)
+		if err != nil {
+			log.Fatal(err)
+		}
+		s = append(s, salesdate[0:10], fmt.Sprintf("%.0f", isales), fmt.Sprintf("%.0f", irfnd),
+			fmt.Sprintf("%.0f", itotal), fmt.Sprintf("%.0f", dsales), fmt.Sprintf("%.0f", drfnd),
+			fmt.Sprintf("%.0f", dtotal), fmt.Sprintf("%.0f", gtotal))
+		ss = append(ss, s)
+	}
+
+	// Get data: Summary line
+	row := db.QueryRow("select * from sales_summary")
+	err = row.Scan(&isales, &irfnd, &itotal, &dsales, &drfnd, &dtotal, &gtotal)
+	if err != nil {
+		panic(err)
+	}
+	var s []string
+	s = append(s, "Total", fmt.Sprintf("%.0f", isales), fmt.Sprintf("%.0f", irfnd),
+		fmt.Sprintf("%.0f", itotal), fmt.Sprintf("%.0f", dsales), fmt.Sprintf("%.0f", drfnd),
+		fmt.Sprintf("%.0f", dtotal), fmt.Sprintf("%.0f", gtotal))
+	ss = append(ss, s)
+
+	// Write csv file
+	f, err := os.Create(dstFile)
+	if err != nil {
+		log.Fatal("Failed to create file: ", err)
+	}
+	w := csv.NewWriter(f)
+	defer f.Close()
+	err = w.WriteAll(ss)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
 }
 
 func salesRaw(db *sql.DB) {
@@ -104,9 +158,11 @@ func salesTabular(db *sql.DB) {
 	fmt.Printf("\n")
 }
 
-// QuerySales show query results from database
-func QuerySales(reportType string) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+// QuerySalesPG show query results from database
+func QuerySalesPG(reportType string) {
+	c := ParseConfig().PGConn
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.DbName)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatal("Failed to open a DB connection: ", err)
