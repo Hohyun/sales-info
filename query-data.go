@@ -17,6 +17,13 @@ const (
 
 var (
 	salesdate   string
+	isales      float64
+	irfnd       float64
+	itotal      float64
+	dsales      float64
+	drfnd       float64
+	dtotal      float64
+	gtotal      float64
 	domintl     string
 	salesrefund string
 	krwamt      float64
@@ -46,71 +53,59 @@ func ImportCsv(srcFile string) {
 	fmt.Printf("Inserted: %d rows\n", affected2)
 }
 
-func sales(db *sql.DB) {
-	row := db.QueryRow("select sum(krwamt) krw_amount from sales")
-	fmt.Printf("%-7s %-10s %-4s %-6s %13s\n", "Level 0", "", "D/I", "", "KRW Amount")
-	fmt.Println("------- ---------- ---- ------ -------------")
-	err := row.Scan(&krwamt)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%-7s %-10s %-4s %-6s %13.0f\n", "", "", "", "", krwamt)
-	fmt.Printf("\n")
-}
-
-func salesDomIntl(db *sql.DB) {
-	rows, err := db.Query("select domintl, sum(krwamt) krw_amount from sales group by domintl order by domintl")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%-7s %-10s %-4s %-6s %13s\n", "Level 1", "", "D/I", "", "KRW Amount")
-	fmt.Println("------- ---------- ---- ------ -------------")
-	for rows.Next() {
-		err := rows.Scan(&domintl, &krwamt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%-7s %-10s %-4s %-6s %13.0f\n", "", "", domintl, "", krwamt)
-	}
-	fmt.Printf("\n")
-}
-
-func salesDomIntlSalesRefund(db *sql.DB) {
-	rows, err := db.Query("select domintl, salesrefund, sum(krwamt) krw_amount from sales group by domintl, salesrefund order by domintl, salesrefund desc")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%-7s %-10s %-4s %-6s %13s\n", "Level 2", "", "D/I", "S/R", "KRW Amount")
-	fmt.Println("------- ---------- ---- ------ -------------")
-	for rows.Next() {
-		err := rows.Scan(&domintl, &salesrefund, &krwamt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%-7s %-10s %-4s %-6s %13.0f\n", "", "", domintl, salesrefund, krwamt)
-	}
-	fmt.Printf("\n")
-}
-
-func salesDateDomIntlSalesRefund(db *sql.DB) {
+func salesRaw(db *sql.DB) {
 	rows, err := db.Query("select salesdate, domintl, salesrefund, sum(krwamt) krw_amount from sales group by salesdate, domintl, salesrefund order by salesdate, domintl, salesrefund desc")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%-7s %-10s %-4s %-6s %13s\n", "Level 3", "Sales Date", "D/I", "S/R", "KRW Amount")
-	fmt.Println("------- ---------- ---- ------ -------------")
+	fmt.Printf("%-10s %-4s %-6s %12s\n", "Date", "D/I", "S/R", "KRW Amount")
+	fmt.Println("---------- ---- ------ -------------")
 	for rows.Next() {
 		err := rows.Scan(&salesdate, &domintl, &salesrefund, &krwamt)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%-7s %-10s %-4s %-6s %13.0f\n", "", salesdate[0:10], domintl, salesrefund, krwamt)
+		fmt.Printf("%-10s %-4s %-6s %12.0f\n", salesdate[0:10], domintl, salesrefund, krwamt)
 	}
 	fmt.Printf("\n")
 }
 
+func salesTabular(db *sql.DB) {
+	// Summary by date
+	rows, err := db.Query("select * from sales_by_date")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\n-----------------------------------------------------------------------------------------------------\n")
+	fmt.Printf("%-10s %41s %41s\n", "", "INTL", "DOM")
+	fmt.Printf("           ----------------------------------------- -----------------------------------------\n")
+	fmt.Printf("%-10s %12s %12s %12s %12s %12s %12s %12s\n",
+		"Date", "Sales", "Refund", "Total", "Sales", "Refund", "Total", "G.Total")
+	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
+	for rows.Next() {
+		err := rows.Scan(&salesdate, &isales, &irfnd, &itotal, &dsales, &drfnd, &dtotal, &gtotal)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%-10s %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f\n",
+			salesdate[0:10], isales, irfnd, itotal, dsales, drfnd, dtotal, gtotal)
+	}
+
+	// Total summary line
+	row := db.QueryRow("select * from sales_summary")
+	err = row.Scan(&isales, &irfnd, &itotal, &dsales, &drfnd, &dtotal, &gtotal)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
+	fmt.Printf("%-10s %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f\n",
+		"Total", isales, irfnd, itotal, dsales, drfnd, dtotal, gtotal)
+	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
+	fmt.Printf("\n")
+}
+
 // QuerySales show query results from database
-func QuerySales(level int) {
+func QuerySales(reportType string) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
@@ -118,19 +113,12 @@ func QuerySales(level int) {
 	}
 	defer db.Close()
 
-	switch level {
-	case 1:
-		sales(db)
-	case 2:
-		salesDomIntl(db)
-	case 3:
-		salesDomIntlSalesRefund(db)
-	case 4:
-		salesDateDomIntlSalesRefund(db)
+	switch reportType {
+	case "table":
+		salesTabular(db)
+	case "raw":
+		salesRaw(db)
 	default:
-		sales(db)
-		salesDomIntl(db)
-		salesDomIntlSalesRefund(db)
-		salesDateDomIntlSalesRefund(db)
+		salesTabular(db)
 	}
 }

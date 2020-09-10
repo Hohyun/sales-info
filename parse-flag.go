@@ -14,7 +14,7 @@ var (
 	flgOut  string
 	flgSrc  string
 	flgDst  string
-	flgLvl  int
+	flgRpt  string
 )
 
 // Config is data struct for parsing config.json
@@ -26,18 +26,18 @@ type Config struct {
 // ParseCmdLineFlags is function parsing command line argument options
 func ParseCmdLineFlags() {
 	flag.BoolVar(&flgHelp, "help", false, "show help")
-	flag.StringVar(&flgIn, "in", path.Join(getDataDir(), "vectis_sales.csv"), "convert: input file")
-	flag.StringVar(&flgOut, "out", path.Join(getDataDir(), "sales_for_db.csv"), "convert: output file")
-	flag.StringVar(&flgSrc, "src", path.Join(getDataDir(), "sales_for_db.csv"), "import: source file")
-	flag.StringVar(&flgDst, "dst", path.Join(getDataDir(), "sales_info.xlsx"), "export: output file")
-	flag.IntVar(&flgLvl, "lvl", 0, "level (1: Grand total, 2:D/I, 3:D/I+S/R, 4:Date+D/I+S/R)")
+	flag.StringVar(&flgIn, "in", path.Join(getDataDir(), "vectis_sales.csv"), ":convert: input file ")
+	flag.StringVar(&flgOut, "out", path.Join(getDataDir(), "sales_for_db.csv"), ":convert: output file")
+	flag.StringVar(&flgSrc, "src", path.Join(getDataDir(), "sales_for_db.csv"), ":import : source file")
+	flag.StringVar(&flgDst, "dst", path.Join(getDataDir(), "sales_info.xlsx"), ":export : output file")
+	flag.StringVar(&flgRpt, "rpt", "table", ":query  : report type")
 	flag.Parse()
 }
 
 // DisplayUsage shows how to use program.
 func DisplayUsage() {
-	fmt.Println("Usage: sales-info [-lvl 1|2|3|4 ] query  | [-in  filename -out filename] convert |")
-	fmt.Println("                  [-src filename] import | [-dst filename] export")
+	fmt.Println("Usage: sales-info [-rpt table|raw] query  | [-in  filename -out filename] convert |")
+	fmt.Println("                  [-src filename ] import | [-dst filename] export")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
