@@ -5,6 +5,14 @@ import (
 	"os"
 )
 
+// Data : sub struct for parsing config.json
+type Data struct {
+	DirName    string `json:"dir_name"`
+	SourceFile string `json:"source_file"`
+	ImportFile string `json:"import_file"`
+	ExportFile string `json:"export_file"`
+}
+
 // PGConn : sub struct for parsing config.json
 type PGConn struct {
 	Host     string `json:"host"`
@@ -17,9 +25,10 @@ type PGConn struct {
 // Config : struct for parsing config.json
 type Config struct {
 	RootDir  string `json:"root_dir"`
-	DataDir  string `json:"data_dir"`
+	Data     Data   `json:"data"`
 	Database string `json:"database"`
 	PGConn   PGConn `json:"pgconn"`
+	SqliteDb string `json:"sqlite_db"`
 }
 
 // ParseConfig return config info

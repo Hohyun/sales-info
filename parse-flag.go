@@ -17,13 +17,14 @@ var (
 )
 
 // ParseCmdLineFlags is function parsing command line argument options
-func ParseCmdLineFlags() {
-	d := ParseConfig().DataDir
+func ParseCmdLineFlags(cfg Config) {
+	d := cfg.Data.DirName
+	fmt.Println("input file: " + path.Join(d, cfg.Data.SourceFile))
 	flag.BoolVar(&flgHelp, "help", false, "show help")
-	flag.StringVar(&flgIn, "in", path.Join(d, "vectis_sales.csv"), ":convert: input file ")
-	flag.StringVar(&flgOut, "out", path.Join(d, "sales_for_db.csv"), ":convert: output file")
-	flag.StringVar(&flgSrc, "src", path.Join(d, "sales_for_db.csv"), ":import : source file")
-	flag.StringVar(&flgDst, "dst", path.Join(d, "sales_info.csv"), ":export : output file")
+	flag.StringVar(&flgIn, "in", path.Join(d, cfg.Data.SourceFile), ":convert: input file ")
+	flag.StringVar(&flgOut, "out", path.Join(d, cfg.Data.ImportFile), ":convert: output file")
+	flag.StringVar(&flgSrc, "src", path.Join(d, cfg.Data.ImportFile), ":import : source file")
+	flag.StringVar(&flgDst, "dst", path.Join(d, cfg.Data.ExportFile), ":export : output file")
 	flag.StringVar(&flgRpt, "rpt", "table", ":query  : report type")
 	flag.Parse()
 }

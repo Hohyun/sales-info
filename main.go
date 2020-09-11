@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	ParseCmdLineFlags()
+	cfg := ParseConfig()
+	ParseCmdLineFlags(cfg)
 	args := flag.Args()
-	c := ParseConfig()
 	// fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgRpt)
 	// fmt.Printf("args: %v", args)
 	// fmt.Printf("%+v\n", c)
@@ -23,7 +23,7 @@ func main() {
 		DisplayUsage()
 	}
 
-	backend := strings.ToLower(c.Database)
+	backend := strings.ToLower(cfg.Database)
 	switch cmd {
 	case "convert":
 		ConvertData(flgIn, flgOut)
@@ -31,20 +31,19 @@ func main() {
 		if backend == "postgresql" {
 			ImportCsvPG(flgSrc)
 		} else {
-
-			// ImportCsvSQ(flgSrc)
+			ImportCsvSQ(flgSrc, cfg)
 		}
 	case "export":
 		if backend == "postgresql" {
 			ExportCsvPG(flgDst)
 		} else {
-			// ExportCsvSQ(flgDst)
+			ExportCsvSQ(flgDst, cfg)
 		}
 	case "query":
 		if backend == "postgresql" {
 			QuerySalesPG(flgRpt)
 		} else {
-			// QuerySalesSQ(flgRpt)
+			QuerySalesSQ(flgRpt, cfg)
 		}
 	default:
 		DisplayUsage()

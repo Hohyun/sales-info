@@ -9,13 +9,14 @@ import (
 	"strings"
 )
 
-func ConvertData(in_file string, out_file string) {
+// ConvertData convert raw vectics file into csv for db import
+func ConvertData(inFile string, outFile string) {
 
-	f_in, err := os.Open(in_file)
+	fIn, err := os.Open(inFile)
 	if err != nil {
 		panic(err)
 	}
-	rdr := csv.NewReader(bufio.NewReader(f_in))
+	rdr := csv.NewReader(bufio.NewReader(fIn))
 	records, err := rdr.ReadAll()
 	if err != nil {
 		panic(err)
@@ -25,74 +26,72 @@ func ConvertData(in_file string, out_file string) {
 	//row := []string{}
 
 	for _, r := range records {
-		transformed := handle_row(r)
+		transformed := handleRow(r)
 		// fmt.Println(transformed)
 		results = append(results, transformed)
 	}
 
-	f_out, err := os.Create(out_file)
-	wrt := csv.NewWriter(bufio.NewWriter(f_out))
+	fOut, err := os.Create(outFile)
+	wrt := csv.NewWriter(bufio.NewWriter(fOut))
 
 	if err := wrt.WriteAll(results); err != nil {
 		panic(err)
 	}
-	fmt.Println("File generated successfully --> " + out_file)
+	fmt.Println("File generated successfully --> " + outFile)
 }
 
-func handle_row(row []string) []string {
+func handleRow(row []string) []string {
 	fop := row[0]
-	agency_type := row[2]
-	sales_date := row[4]
-	sales_type := row[5]
+	agencyType := row[2]
+	salesDate := row[4]
+	salesType := row[5]
 	ticket := row[7]
 	itinerary := row[10]
 	docs := row[13]
 	ccy := row[14]
 	amount := strings.ReplaceAll(row[15], ",", "")
-	krw_amt := strings.ReplaceAll(row[16], ",", "")
-	dom_intl := choose_di(fop, agency_type, sales_type, itinerary)
-	sales_refund := choose_sr(krw_amt)
-	return []string{fop, agency_type, sales_date, sales_type, ticket, itinerary, docs, ccy, amount, krw_amt, dom_intl, sales_refund}
+	krwAmt := strings.ReplaceAll(row[16], ",", "")
+	domIntl := chooseDi(fop, agencyType, salesType, itinerary)
+	salesRefund := chooseSr(krwAmt)
+	return []string{fop, agencyType, salesDate, salesType, ticket, itinerary, docs, ccy, amount, krwAmt, domIntl, salesRefund}
 }
 
-func choose_di(fop string, agency_t string, sales_t string, itin string) string {
+func chooseDi(fop string, agencyT string, salesT string, itin string) string {
 	// handle header line
 	if fop == "FOP" {
 		return "DomIntl"
 	}
 
-	switch sales_t {
+	switch salesT {
 	case "DOM":
 		return "DOM"
 	case "INTL":
 		return "INTL"
 	case "???":
-		if strings.HasPrefix(agency_t, "BSP") || strings.HasPrefix(fop, "QN") || strings.Contains(itin, "ICN") {
+		if strings.HasPrefix(agencyT, "BSP") || strings.HasPrefix(fop, "QN") || strings.Contains(itin, "ICN") {
 			return "INTL"
 		}
 		if strings.Contains(itin, "GMP") {
 			return "DOM"
-		} else {
-			return "INTL"
 		}
+		return "INTL"
 	default:
 		return "INTL"
 	}
 }
 
-func choose_sr(krw_str string) string {
+func chooseSr(krwStr string) string {
 	// handle header line
-	if krw_str == "KRW Amount" {
+	if krwStr == "KRW Amount" {
 		return "KRW Amount"
 	}
 
-	i64, err := strconv.ParseInt(krw_str, 10, 64)
+	i64, err := strconv.ParseInt(krwStr, 10, 64)
 	if err != nil {
 		panic(err)
 	}
 	if i64 >= 0 {
 		return "Sales"
-	} else {
-		return "Refund"
 	}
+	return "Refund"
 }

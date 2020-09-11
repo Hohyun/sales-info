@@ -107,7 +107,7 @@ func ExportCsvPG(dstFile string) {
 	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
 }
 
-func salesRaw(db *sql.DB) {
+func salesRawPG(db *sql.DB) {
 	rows, err := db.Query("select salesdate, domintl, salesrefund, sum(krwamt) krw_amount from sales group by salesdate, domintl, salesrefund order by salesdate, domintl, salesrefund desc")
 	if err != nil {
 		panic(err)
@@ -124,7 +124,7 @@ func salesRaw(db *sql.DB) {
 	fmt.Printf("\n")
 }
 
-func salesTabular(db *sql.DB) {
+func salesTabularPG(db *sql.DB) {
 	// Summary by date
 	rows, err := db.Query("select * from sales_by_date")
 	if err != nil {
@@ -171,10 +171,10 @@ func QuerySalesPG(reportType string) {
 
 	switch reportType {
 	case "table":
-		salesTabular(db)
+		salesTabularPG(db)
 	case "raw":
-		salesRaw(db)
+		salesRawPG(db)
 	default:
-		salesTabular(db)
+		salesTabularPG(db)
 	}
 }
