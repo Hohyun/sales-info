@@ -10,7 +10,7 @@ func main() {
 	cfg := ParseConfig()
 	ParseCmdLineFlags(cfg)
 	args := flag.Args()
-	// fmt.Printf("in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgIn, flgOut, flgSrc, flgDst, flgRpt)
+	// fmt.Printf("from: %s, to: %s, in: %s, out: %s, src: %s, dst: %s, lvl: %d\n", flgFrom, flgTo, flgIn, flgOut, flgSrc, flgDst, flgRpt)
 	// fmt.Printf("args: %v", args)
 	// fmt.Printf("%+v\n", c)
 
@@ -18,13 +18,22 @@ func main() {
 		DisplayUsage()
 	}
 
-	cmd := args[0]
-	if cmd != "convert" && cmd != "import" && cmd != "export" && cmd != "query" {
-		DisplayUsage()
-	}
-
 	backend := strings.ToLower(cfg.Database)
-	switch cmd {
+	action := args[0]
+	switch action {
+	case "download":
+		DownloadData(flgFrom, flgTo)
+	case "all":
+		ConvertData(flgIn, flgOut)
+		if backend == "postgresql" {
+			ImportCsvPG(flgSrc)
+			QuerySalesPG(flgRpt)
+			ExportCsvPG(flgDst)
+		} else {
+			ImportCsvSQ(flgSrc, cfg)
+			QuerySalesSQ(flgRpt, cfg)
+			ExportCsvSQ(flgDst, cfg)
+		}
 	case "convert":
 		ConvertData(flgIn, flgOut)
 	case "import":

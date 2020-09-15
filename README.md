@@ -7,6 +7,8 @@ Utility program for weekly sales report.
   . parsing configuration from config.json
 - parse-flag.fo   
   . parsing command line interface options
+- download-data.go
+  . download vectis sales data using sales_download.exe
 - convert-data.go
   . convert vectis download data --> import-data.csv
 - query-postgres.go 
@@ -15,39 +17,43 @@ Utility program for weekly sales report.
   . query sales results, export query results (Sqlite3 backend)
 
 ## Files
+Following files should exist in the same folder with sales-info.exe
+
 - config.json
   . this file has default configuration setting
 - import.sql
   . sqlite3 batch file for data import
+- sqlite3.exe
+- sales_download.exe
 
 ## Config.json
 {
-    "root_dir": "D:/Projects/sales-info",
     "data": {
-        "dir_name": "D:/Projects/sales-info/data",
-        "source_file": "vectis_sales.csv",
-        "import_file": "import_data.csv",
-        "export_file": "sales_results.csv"
+        "dir_name": "./data",
+        "source_file": "VectisReport.csv",
+        "import_file": "ImportData.csv",
+        "export_file": "SalesResults.csv"
     },
     "database": "Sqlite",
     "pgconn": {
         "host": "localhost",
         "port": 5432,
-        "user": "********",
-        "password": "*******",
+        "user": "*********",
+        "password": "*********",
         "dbname": "selabd"
     },
-    "sqlite_db": "D:/Projects/sales-info/data/selabd.db"
+    "sqlite_db": "./data/selabd.db"
 }
 
 ## Import.sql
 .separator ","
-.import D:/Projects/sales-info/data/import_data.csv sales --skip 1
+.import ./data/Import_Data.csv sales --skip 1
 
 - file name in import.sql should be equal to import_file in config.json 
 
 ## How to use
 
-Usage: sales-info [-rpt table|raw] query  | [-in  filename -out filename] convert |
-                  [-src filename ] import | [-dst filename] export
+Usage: sales-info -from yyyy-mm-dd -to yyyy-mm-dd download |
+       [-in filename -out filename] convert | [-src filename] import |
+       [-rpt table|raw] query | [-dst filename] export | all
 

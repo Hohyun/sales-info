@@ -24,7 +24,6 @@ type PGConn struct {
 
 // Config : struct for parsing config.json
 type Config struct {
-	RootDir  string `json:"root_dir"`
 	Data     Data   `json:"data"`
 	Database string `json:"database"`
 	PGConn   PGConn `json:"pgconn"`

@@ -47,7 +47,7 @@ func ImportCsvSQ(srcFile string, cfg Config) {
 		log.Fatal(err)
 	}
 	// cmd := exec.Command("sqlite3", "./data/selabd.db", ".read import.sql")
-	cmd := exec.Command("sqlite3", cfg.SqliteDb, ".read import.sql")
+	cmd := exec.Command("./sqlite3.exe", cfg.SqliteDb, ".read import.sql")
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -133,8 +133,8 @@ func salesTabularSQ(db *sql.DB) {
 		panic(err)
 	}
 	fmt.Printf("\n-----------------------------------------------------------------------------------------------------\n")
-	fmt.Printf("%-10s %41s %41s\n", "", "INTL", "DOM")
-	fmt.Printf("           ----------------------------------------- -----------------------------------------\n")
+	fmt.Printf("%-10s %38s %38s\n", "", "INTL", "DOM")
+	fmt.Printf("           -------------------------------------- --------------------------------------\n")
 	fmt.Printf("%-10s %12s %12s %12s %12s %12s %12s %12s\n",
 		"Date", "Sales", "Refund", "Total", "Sales", "Refund", "Total", "G.Total")
 	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")

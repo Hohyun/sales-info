@@ -1,2 +1,3 @@
 .separator ","
-.import D:/Projects/sales-info/data/import_data.csv sales --skip 1
+.import ./data/ImportData.csv sales --skip 1
+VACUUM;

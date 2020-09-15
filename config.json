@@ -1,18 +1,17 @@
 {
-    "root_dir": "D:/Projects/sales-info",
     "data": {
-        "dir_name": "D:/Projects/sales-info/data",
-        "source_file": "vectis_sales.csv",
-        "import_file": "import_data.csv",
-        "export_file": "sales_results.csv"
+        "dir_name": "./data",
+        "source_file": "VectisReport.csv",
+        "import_file": "ImportData.csv",
+        "export_file": "SalesResults.csv"
     },
     "database": "Sqlite",
     "pgconn": {
         "host": "localhost",
         "port": 5432,
-        "user": "hohyunkim",
-        "password": "Django121*",
+        "user": "*********",
+        "password": "*********",
         "dbname": "selabd"
     },
-    "sqlite_db": "D:/Projects/sales-info/data/selabd.db"
+    "sqlite_db": "./data/selabd.db"
 }
