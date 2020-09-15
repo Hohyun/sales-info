@@ -47,7 +47,7 @@ Following files should exist in the same folder with sales-info.exe
 
 ## Import.sql
 .separator ","
-.import ./data/Import_Data.csv sales --skip 1
+.import ./data/ImportData.csv sales --skip 1
 
 - file name in import.sql should be equal to import_file in config.json 
 
