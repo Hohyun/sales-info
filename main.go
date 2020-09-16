@@ -37,8 +37,8 @@ func main() {
 			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
 			ImportCsvSQ(flgSrc, cfg)
-			QuerySalesSQ(flgRpt, cfg)
-			ExportCsvSQ(flgDst, cfg)
+			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
+			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
 		}
 	case "convert":
 		ConvertData(flgIn, flgOut)
@@ -52,13 +52,13 @@ func main() {
 		if backend == "postgresql" {
 			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
-			ExportCsvSQ(flgDst, cfg)
+			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
 		}
 	case "query":
 		if backend == "postgresql" {
 			QuerySalesPG(flgRpt, flgFrom, flgTo)
 		} else {
-			QuerySalesSQ(flgRpt, cfg)
+			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
 		}
 	default:
 		DisplayUsage()

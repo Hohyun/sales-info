@@ -1,3 +1,3 @@
 .separator ","
-.import ./data/ImportData.csv sales --skip 1
+.import ./data/ImportData.csv sales_raw --skip 1
 VACUUM;

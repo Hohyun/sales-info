@@ -109,7 +109,7 @@ func exportRawPG(db *sql.DB, dstFile string, fromDate string, toDate string) {
 
 func exportTabularPG(db *sql.DB, dstFile string, fromDate string, toDate string) {
 	// Get data: Sale by date
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where date between '%s' and '%s'", fromDate, toDate))
+	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
 	if err != nil {
 		panic(err)
 	}
@@ -165,7 +165,7 @@ func ExportCsvPG(reportType string, dstFile string, fromDate string, toDate stri
 	defer db.Close()
 
 	switch reportType {
-	case "table":
+	case "tabular":
 		exportTabularPG(db, dstFile, fromDate, toDate)
 	case "raw":
 		exportRawPG(db, dstFile, fromDate, toDate)
@@ -199,7 +199,7 @@ func salesTabularPG(db *sql.DB, fromDate string, toDate string) {
 	// Summary by date
 	var dsalesT, drfndT, isalesT, irfndT float64
 
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where date between '%s' and '%s'", fromDate, toDate))
+	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
 	if err != nil {
 		panic(err)
 	}
