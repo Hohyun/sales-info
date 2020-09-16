@@ -14,12 +14,18 @@ func main() {
 	// fmt.Printf("args: %v", args)
 	// fmt.Printf("%+v\n", c)
 
-	if flgHelp || len(args) != 1 {
+	if flgHelp || len(args) != 1 { // there should be only one action command.
 		DisplayUsage()
 	}
 
 	backend := strings.ToLower(cfg.Database)
 	action := args[0]
+	if (action == "download" || action == "query" || action == "export") &&
+		(flgFrom == "" || flgTo == "") {
+		fmt.Printf("From date, To date should be supplied with %s\n", action)
+		DisplayUsage()
+	}
+
 	switch action {
 	case "download":
 		DownloadData(flgFrom, flgTo)
@@ -27,8 +33,8 @@ func main() {
 		ConvertData(flgIn, flgOut)
 		if backend == "postgresql" {
 			ImportCsvPG(flgSrc)
-			QuerySalesPG(flgRpt)
-			ExportCsvPG(flgDst)
+			QuerySalesPG(flgRpt, flgFrom, flgTo)
+			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
 			ImportCsvSQ(flgSrc, cfg)
 			QuerySalesSQ(flgRpt, cfg)
@@ -44,13 +50,13 @@ func main() {
 		}
 	case "export":
 		if backend == "postgresql" {
-			ExportCsvPG(flgDst)
+			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
 			ExportCsvSQ(flgDst, cfg)
 		}
 	case "query":
 		if backend == "postgresql" {
-			QuerySalesPG(flgRpt)
+			QuerySalesPG(flgRpt, flgFrom, flgTo)
 		} else {
 			QuerySalesSQ(flgRpt, cfg)
 		}

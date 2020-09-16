@@ -42,6 +42,7 @@ func ConvertData(inFile string, outFile string) {
 
 func handleRow(row []string) []string {
 	fop := row[0]
+	fopdesc := row[1]
 	agencyType := row[2]
 	salesDate := row[4]
 	salesType := row[5]
@@ -53,7 +54,7 @@ func handleRow(row []string) []string {
 	krwAmt := strings.ReplaceAll(row[16], ",", "")
 	domIntl := chooseDi(fop, agencyType, salesType, itinerary)
 	salesRefund := chooseSr(krwAmt)
-	return []string{fop, agencyType, salesDate, salesType, ticket, itinerary, docs, ccy, amount, krwAmt, domIntl, salesRefund}
+	return []string{fop, fopdesc, agencyType, salesDate, salesType, ticket, itinerary, docs, ccy, amount, krwAmt, domIntl, salesRefund}
 }
 
 func chooseDi(fop string, agencyT string, salesT string, itin string) string {

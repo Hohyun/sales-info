@@ -5,12 +5,12 @@
         "import_file": "ImportData.csv",
         "export_file": "SalesResults.csv"
     },
-    "database": "PostgreSQL",
+    "database": "Sqlite",
     "pgconn": {
         "host": "localhost",
         "port": 5432,
-        "user": "hohyunkim",
-        "password": "Django121*",
+        "user": "*********",
+        "password": "*********",
         "dbname": "selabd"
     },
     "sqlite_db": "./data/selabd.db"
