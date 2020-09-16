@@ -28,7 +28,7 @@ func main() {
 
 	switch action {
 	case "download":
-		DownloadData(flgFrom, flgTo)
+		DownloadData(flgFrom, flgTo, flgID, flgPswd)
 	case "all":
 		ConvertData(flgIn, flgOut)
 		if backend == "postgresql" {
