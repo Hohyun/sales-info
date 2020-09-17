@@ -11,6 +11,7 @@ type Data struct {
 	SourceFile string `json:"source_file"`
 	ImportFile string `json:"import_file"`
 	ExportFile string `json:"export_file"`
+	VectisFile string `json:"vectis_file"`
 }
 
 // PGConn : sub struct for parsing config.json

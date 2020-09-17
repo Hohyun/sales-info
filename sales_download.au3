@@ -20,11 +20,9 @@ Local $fromDate   = $CmdLine[1]
 Local $toDate     = $CmdLine[2]
 Local $id         = $CmdLine[3]
 Local $pswd       = $CmdLine[4]
-Local $dataDir  = ".\data\"
-Local $fileName = "VectisReport.csv"
 
 VectisLogin($id, $pswd)
-DownloadReport($fromDate, $toDate, $dataDir, $fileName)
+DownloadReport($fromDate, $toDate)
 WinClose("Vectis")
 Send("{Enter}")
 ConsoleWrite("Program finished successfully!" & @CRLF)
@@ -41,7 +39,7 @@ Func VectisLogin($id, $pswd)
    Local $hWnd = WinWaitActive("Vectis")
 EndFunc
 
-Func DownloadReport($fromDate, $toDate, $dataDir, $fileName)
+Func DownloadReport($fromDate, $toDate)
    Local $hWnd = WinActivate("Vectis")
    Send("!R{RIGHT}{ENTER}")    ; Report - Passenger Revenue - Sales
 
@@ -76,6 +74,4 @@ Func DownloadReport($fromDate, $toDate, $dataDir, $fileName)
 
    Local $hWnd = WinWaitActive("File/s Created")
    ControlClick($hWnd, "", "Button1")
-
-   FileCopy("C:\VectisClient\VectisTemp\VectisReport.csv", $dataDir & $fileName)
 EndFunc

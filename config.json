@@ -3,7 +3,8 @@
         "dir_name": "D:/Projects/sales-info/data",
         "source_file": "VectisReport.csv",
         "import_file": "ImportData.csv",
-        "export_file": "SalesResults.csv"
+        "export_file": "SalesResults.csv",
+        "vectis_file": "C:/VectisClient/VectisTemp/VectisReport.csv"
     },
     "database": "Sqlite",
     "pgconn": {

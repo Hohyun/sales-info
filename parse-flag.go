@@ -39,7 +39,7 @@ func ParseCmdLineFlags(cfg Config) {
 // DisplayUsage shows how to use program.
 func DisplayUsage() {
 	fmt.Println("Usage: sales-info")
-	fmt.Println("       [-from yyyy-mm-dd -to yyyy-mm-dd -id ******** -password ********] download |")
+	fmt.Println("        -from yyyy-mm-dd -to yyyy-mm-dd [-id ******* -password ********] download |")
 	fmt.Println("       [-in filename -out filename                                     ] convert  |")
 	fmt.Println("       [-src filename                                                  ] import   |")
 	fmt.Println("        -from yyyy-mm-dd -to yyyy-mm-dd [-rpt tabular|raw              ] query    |")

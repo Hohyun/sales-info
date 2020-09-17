@@ -4,6 +4,7 @@
         "source_file": "VectisReport.csv",
         "import_file": "ImportData.csv",
         "export_file": "SalesResults.csv"
+	"vectis_file": "C:/VectisClient/VectisTemp/VectisReport.csv"
     },
     "database": "PostgreSQL",
     "pgconn": {
