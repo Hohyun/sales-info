@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -188,34 +189,39 @@ func salesTabularSQ(db *sql.DB, fromDate string, toDate string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\n-----------------------------------------------------------------------------------------------------\n")
-	fmt.Printf("%-10s %38s %38s\n", "", "DOM", "INTL")
-	fmt.Printf("           -------------------------------------- --------------------------------------\n")
-	fmt.Printf("%-10s %12s %12s %12s %12s %12s %12s %12s\n",
+	fmt.Printf("\n-------------------------------------------------------------------------------------------------------------------\n")
+	fmt.Printf("%-10s %44s %44s\n", "", "DOM", "INTL")
+	fmt.Printf("           -------------------------------------------- --------------------------------------------\n")
+	fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s\n",
 		"Date", "Sales", "Refund", "Total", "Sales", "Refund", "Total", "G.Total")
-	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
+	fmt.Printf("---------- -------------- -------------- -------------- -------------- -------------- -------------- --------------\n")
 	for rows.Next() {
 		err := rows.Scan(&salesdate, &dsales, &drfnd, &dtotal, &isales, &irfnd, &itotal, &gtotal)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%-10s %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f\n",
-			salesdate[0:10], dsales, drfnd, dtotal, isales, irfnd, itotal, gtotal)
+		fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s\n",
+			salesdate[0:10], commas(int(dsales)), commas(int(drfnd)),
+			commas(int(dtotal)), commas(int(isales)), commas(int(irfnd)),
+			commas(int(itotal)), commas(int(gtotal)))
 		dsalesT += dsales
 		drfndT += drfnd
 		isalesT += isales
 		irfndT += irfnd
 	}
-	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
-	fmt.Printf("%-10s %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f %12.0f\n",
-		"Total", dsalesT, drfndT, dsalesT+drfndT, isalesT, irfndT, isalesT+irfndT,
-		dsalesT+drfndT+isalesT+irfndT)
-	fmt.Printf("---------- ------------ ------------ ------------ ------------ ------------ ------------ ------------\n")
+	fmt.Printf("---------- -------------- -------------- -------------- -------------- -------------- -------------- --------------\n")
+	fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s\n",
+		"Total", commas(int(dsalesT)), commas(int(drfndT)),
+		commas(int(dsalesT+drfndT)), commas(int(isalesT)),
+		commas(int(irfndT)), commas(int(isalesT+irfndT)),
+		commas(int(dsalesT+drfndT+isalesT+irfndT)))
+	fmt.Printf("---------- -------------- -------------- -------------- -------------- -------------- -------------- --------------\n")
 	fmt.Printf("\n")
 }
 
 // QuerySalesSQ show query results from database
 func QuerySalesSQ(reportType string, fromDate string, toDate string, cfg Config) {
+	fmt.Println(cfg.SqliteDb)
 	db, err := sql.Open("sqlite3", cfg.SqliteDb)
 	if err != nil {
 		log.Fatal("Failed to open a DB connection: ", err)
@@ -230,4 +236,14 @@ func QuerySalesSQ(reportType string, fromDate string, toDate string, cfg Config)
 	default:
 		salesTabularSQ(db, fromDate, toDate)
 	}
+}
+
+func commas(num int) string {
+	str := fmt.Sprintf("%d", num)
+	re := regexp.MustCompile("(\\d+)(\\d{3})")
+	for n := ""; n != str; {
+		n = str
+		str = re.ReplaceAllString(str, "$1,$2")
+	}
+	return str
 }
