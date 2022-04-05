@@ -10,8 +10,7 @@ import (
 )
 
 // ConvertData convert raw vectics file into csv for db import
-func ConvertData(inFile string, outFile string) {
-
+func ConvertData(gubun string, inFile string, outFile string) {
 	fIn, err := os.Open(inFile)
 	if err != nil {
 		panic(err)
@@ -23,11 +22,13 @@ func ConvertData(inFile string, outFile string) {
 	}
 
 	results := [][]string{}
-	//row := []string{}
-
 	for _, r := range records {
-		transformed := handleRow(r)
-		// fmt.Println(transformed)
+		var transformed []string
+		if gubun == "sales" {
+			transformed = handleRowSales(r)
+		} else if gubun == "taxyr" {
+			transformed = handleRowTaxYr(r)
+		} 	
 		results = append(results, transformed)
 	}
 
@@ -40,7 +41,7 @@ func ConvertData(inFile string, outFile string) {
 	fmt.Println("File generated successfully --> " + outFile)
 }
 
-func handleRow(row []string) []string {
+func handleRowSales(row []string) []string {
 	fop := row[0]
 	fopdesc := row[1]
 	agencyType := row[2]
@@ -55,6 +56,24 @@ func handleRow(row []string) []string {
 	domIntl := chooseDi(fop, agencyType, salesType, itinerary)
 	salesRefund := chooseSr(krwAmt)
 	return []string{fop, fopdesc, agencyType, salesDate, salesType, ticket, itinerary, docs, ccy, amount, krwAmt, domIntl, salesRefund}
+}
+
+func handleRowTaxYr(row []string) []string {
+	var taxYr string
+	code := row[0]
+	domIntl := row[2]
+	salesDate := row[4]
+	ccy := row[5]
+	salesAmt := strings.ReplaceAll(row[6], ",", "")
+	refundAmt := strings.ReplaceAll(row[7], ",", "")
+	reissueAmt := strings.ReplaceAll(row[8], ",", "")
+	if code == "YR" {
+		taxYr = "YR"
+	} else {
+		taxYr = "TAX"
+	}
+
+	return []string{code, taxYr, domIntl, salesDate, ccy, salesAmt, refundAmt, reissueAmt}
 }
 
 func chooseDi(fop string, agencyT string, salesT string, itin string) string {

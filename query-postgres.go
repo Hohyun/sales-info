@@ -20,9 +20,13 @@ var (
 	salesrefund string
 	isales      float64
 	irfnd       float64
+	iyr         float64
+	itax        float64
 	itotal      float64
 	dsales      float64
 	drfnd       float64
+	dyr         float64
+	dtax        float64
 	dtotal      float64
 	gtotal      float64
 	krwamt      float64

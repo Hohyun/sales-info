@@ -1,4 +1,4 @@
-;; Vectis Sales Data Download Script
+;; Vectis Tax and YR revenue Data Download Script
 ;
 ;  : Written by hohynkim@jinair.com
 ;  : Last edited date: 2020-09-15
@@ -6,7 +6,7 @@
 ;  : Arguments -- fromDate, toDate, id, password
 ;
 ;  : How to run
-;  :: AutoIt3.exe sales_download.au3 2020-09-01 2020-09-07 vectis_id, vectis_pswd
+;  :: AutoIt3.exe taxYR_download.au3 2022-04-01 2022-04-01 vectis_id, vectis_pswd
 
 
 #include <Date.au3>
@@ -42,13 +42,12 @@ EndFunc
 
 Func DownloadReport($fromDate, $toDate)
    Local $hWnd = WinActivate("Vectis")
-   Sleep(1000)
    Send("!R{RIGHT}{ENTER}")    ; Report - Passenger Revenue - Sales
 
    Local $hWnd = WinWaitActive("Vectis - [Passenger Sales Reports]")
-   ControlClick($hWnd, "", "Jade:ListBox1", "left", 2, 134, 118)
+   ControlClick($hWnd, "", "Jade:ListBox1", "left", 2, 134, 228)
 
-   Local $hWnd = WinWaitActive("Vectis - [Sale FOP Manager]")
+   Local $hWnd = WinWaitActive("Vectis - [Sale Tax Manager]")
    ; Filter On: Settlement Date
    ControlClick($hWnd, "", "Jade:Edit1")
    ControlSetText($hWnd, "", "Jade:Edit1", $fromDate)  ; Date From:
@@ -59,11 +58,11 @@ Func DownloadReport($fromDate, $toDate)
    ControlClick($hWnd, "", "Jade:Button23")
 
    ; Sometimes following confirm window appears
-   WinWait("Report Period", "", 5)
+  ; WinWait("Report Period", "", 5)
    ; select "Yes" - Date is correct?
-   If WinExists("Report Period") Then
-      ControlClick("Report Period", "", "Button1")
-   EndIf
+  ; If WinExists("Report Period") Then
+  ;    ControlClick("Report Period", "", "Button1")
+  ; EndIf
 
    Local $hWnd = WinWaitActive("Printer Options")
    ControlClick($hWnd, "", "Button10")  ; Export
@@ -75,5 +74,5 @@ Func DownloadReport($fromDate, $toDate)
 
    Local $hWnd = WinWaitActive("File/s Created")
    ControlClick($hWnd, "", "Button1")
-   WinActivate("Vectis")
+   WinWaitActive("Vectis")
 EndFunc

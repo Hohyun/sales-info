@@ -28,25 +28,48 @@ func main() {
 
 	switch action {
 	case "download":
-		DownloadData(flgFrom, flgTo, flgID, flgPswd, cfg)
+		DownloadData(flgGubun, flgFrom, flgTo, flgID, flgPswd, cfg)
 	case "all":
-		ConvertData(flgIn, flgOut)
+		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
+		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
 		if backend == "postgresql" {
 			ImportCsvPG(flgSrc)
 			QuerySalesPG(flgRpt, flgFrom, flgTo)
 			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
-			ImportCsvSQ(flgSrc, cfg)
+			if flgGubun == "sales" {
+				ImportCsvSqSales(cfg)
+			} else if flgGubun == "taxyr" {
+				ImportCsvSqTaxYr(cfg)
+			} else if flgGubun == "" {
+				ImportCsvSqSales(cfg)
+				ImportCsvSqTaxYr(cfg)
+			}	
 			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
 			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
 		}
 	case "convert":
-		ConvertData(flgIn, flgOut)
+		if flgGubun == "sales" {
+			ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
+		} else if flgGubun == "taxyr" {
+			ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
+		} else if flgGubun == "" {
+			ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
+			ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
+		}
+		
 	case "import":
 		if backend == "postgresql" {
 			ImportCsvPG(flgSrc)
 		} else {
-			ImportCsvSQ(flgSrc, cfg)
+			if flgGubun == "sales" {
+				ImportCsvSqSales(cfg)
+			} else if flgGubun == "taxyr" {
+				ImportCsvSqTaxYr(cfg)
+			} else if flgGubun == "" {
+				ImportCsvSqSales(cfg)
+				ImportCsvSqTaxYr(cfg)
+			}		
 		}
 	case "export":
 		if backend == "postgresql" {
