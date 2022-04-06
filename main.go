@@ -33,7 +33,14 @@ func main() {
 		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
 		if backend == "postgresql" {
-			ImportCsvPG(flgSrc)
+			if flgGubun == "sales" {
+				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
+			} else if flgGubun == "taxyr" {
+				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
+			} else if flgGubun == "" {
+				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
+				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
+			}		
 			QuerySalesPG(flgRpt, flgFrom, flgTo)
 			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
@@ -60,7 +67,14 @@ func main() {
 		
 	case "import":
 		if backend == "postgresql" {
-			ImportCsvPG(flgSrc)
+			if flgGubun == "sales" {
+				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
+			} else if flgGubun == "taxyr" {
+				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
+			} else if flgGubun == "" {
+				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
+				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
+			}	
 		} else {
 			if flgGubun == "sales" {
 				ImportCsvSqSales(cfg)
