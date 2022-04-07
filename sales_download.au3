@@ -33,8 +33,8 @@ Func VectisLogin($id, $pswd)
    Run("C:\VectisClient\bin\jade.exe appServer=10.23.34.4 appServerPort=6021 app=Vectis schema=AppSchema")
 
    Local $hWnd = WinWaitActive("Welcome to Vectis - Logon")
-   ControlSetText($hWnd, "", "Jade:Edit1", $id)
-   ControlSetText($hWnd, "", "Jade:Edit2", $pswd)
+   ControlSetText($hWnd, "", "Jade:Edit2", $id)
+   ControlSetText($hWnd, "", "Jade:Edit1", $pswd)
    ControlClick($hWnd, "", "Jade:JadeMask1")
 
    Local $hWnd = WinWaitActive("Vectis")
