@@ -10,8 +10,8 @@
   "pgconn": {
     "host": "localhost",
     "port": 5432,
-    "user": "hohyunkim",
-    "password": "Django121*",
+    "user": "postgres",
+    "password": "LJ2008*",
     "dbname": "selabd"
   },
   "sqlite_db": "./data/selabd.db"

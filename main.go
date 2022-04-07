@@ -18,13 +18,15 @@ func main() {
 		DisplayUsage()
 	}
 
+	if flgFrom == "" {
+		flgFrom = getDefautFromDate()
+	}
+	if flgTo == "" {
+		flgTo = getDefautToDate()
+	}
+
 	backend := strings.ToLower(cfg.Database)
 	action := args[0]
-	if (action == "download" || action == "query" || action == "export") &&
-		(flgFrom == "" || flgTo == "") {
-		fmt.Printf("From date, To date should be supplied with %s\n", action)
-		DisplayUsage()
-	}
 
 	switch action {
 	case "download":
@@ -40,7 +42,7 @@ func main() {
 			} else if flgGubun == "" {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
-			}		
+			}
 			QuerySalesPG(flgRpt, flgFrom, flgTo)
 			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
 		} else {
@@ -51,7 +53,7 @@ func main() {
 			} else if flgGubun == "" {
 				ImportCsvSqSales(cfg)
 				ImportCsvSqTaxYr(cfg)
-			}	
+			}
 			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
 			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
 		}
@@ -64,7 +66,7 @@ func main() {
 			ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 			ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
 		}
-		
+
 	case "import":
 		if backend == "postgresql" {
 			if flgGubun == "sales" {
@@ -74,7 +76,7 @@ func main() {
 			} else if flgGubun == "" {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
-			}	
+			}
 		} else {
 			if flgGubun == "sales" {
 				ImportCsvSqSales(cfg)
@@ -83,7 +85,7 @@ func main() {
 			} else if flgGubun == "" {
 				ImportCsvSqSales(cfg)
 				ImportCsvSqTaxYr(cfg)
-			}		
+			}
 		}
 	case "export":
 		if backend == "postgresql" {
