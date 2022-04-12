@@ -52,8 +52,8 @@ Func VectisLogin($id, $pswd)
    Run("C:\VectisClient\bin\jade.exe appServer=10.23.34.4 appServerPort=6021 app=Vectis schema=AppSchema")
 
    Local $hWnd = WinWaitActive("Welcome to Vectis - Logon")
-   ControlSetText($hWnd, "", "Jade:Edit1", $id)
-   ControlSetText($hWnd, "", "Jade:Edit2", $pswd)
+   ControlSetText($hWnd, "", "Jade:Edit2", $id)
+   ControlSetText($hWnd, "", "Jade:Edit1", $pswd)
    ControlClick($hWnd, "", "Jade:JadeMask1")
 
    Local $hWnd = WinWaitActive("Vectis")
@@ -68,13 +68,13 @@ Func DownloadReport($fromDate, $toDate)
 
    Local $hWnd = WinWaitActive("Vectis - [Sale Tax Manager]")
    ; Filter On: Settlement Date
-   ControlClick($hWnd, "", "Jade:Edit1")
-   ControlSetText($hWnd, "", "Jade:Edit1", $fromDate)  ; Date From:
+   ControlClick($hWnd, "", "Jade:Edit17")
+   ControlSetText($hWnd, "", "Jade:Edit17", $fromDate)  ; Date From:
    Send("{TAB}")
-   ControlClick($hWnd, "", "Jade:Edit2")
-   ControlSetText($hWnd, "", "Jade:Edit2", $toDate)  ; Date To:
+   ControlClick($hWnd, "", "Jade:Edit18")
+   ControlSetText($hWnd, "", "Jade:Edit18", $toDate)  ; Date To:
    Send("{TAB}")
-   ControlClick($hWnd, "", "Jade:Button23")
+   ControlClick($hWnd, "", "Jade:Button2")
 
    ; Sometimes following confirm window appears
    WinWait("Report Period", "", 5)
@@ -84,12 +84,12 @@ Func DownloadReport($fromDate, $toDate)
    EndIf
 
    Local $hWnd = WinWaitActive("Printer Options")
-   ControlClick($hWnd, "", "Button10")  ; Export
+   ControlClick($hWnd, "", "Jade:OptionButton6")  ; Export
    Sleep(10000)
-   ControlClick($hWnd, "", "ComboBox1")      ; CSV
+   ControlClick($hWnd, "", "Jade:ComboBox3")      ; CSV
    Sleep(3000)
    Send("{UP}{TAB}")
-   ControlClick($hWnd, "", "Jade:Button3")        ; OK --> Run
+   ControlClick($hWnd, "", "Jade:Button4")        ; OK --> Run
 
    Local $hWnd = WinWaitActive("File/s Created")
    ControlClick($hWnd, "", "Button1")

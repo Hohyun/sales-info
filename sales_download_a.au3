@@ -1,4 +1,4 @@
-; Vectis Tax and YR revenue Data Download Script
+;; Vectis Sales Data Download Script
 ;
 ;  : Written by hohynkim@jinair.com
 ;  : Last edited date: 2020-09-15
@@ -6,7 +6,7 @@
 ;  : Arguments -- id, password, fromDate, toDate
 ;
 ;  : How to run
-;  :: AutoIt3.exe taxYR_download.au3 vectis_id  vectis_pswd 2022-04-01 2022-04-09
+;  :: AutoIt3.exe sales_download.au3 vectis_id vectis_pswd 2020-09-01 2020-09-07 
 
 
 #include <Date.au3>
@@ -26,6 +26,7 @@ ElseIf $paramCnt == 2 Then
 Else
 	Exit
 EndIf
+
 ; MsgBox($MB_SYSTEMMODAL, "", "ID: " & $id & " Password: " & $pswd & " From: " & $fromDate & ", To: " & $toDate)
 
 VectisLogin($id, $pswd)
@@ -33,8 +34,10 @@ DownloadReport($fromDate, $toDate)
 WinClose("Vectis")
 Send("{Enter}")
 
-FileCopy("C:\VectisClient\VectisTemp\VectisReport.csv", "D:\Projects\sales-info\data\VectisReport_taxyr.csv", $FC_OVERWRITE)
+; copy file
+FileCopy("C:\VectisClient\VectisTemp\VectisReport.csv", "D:\Projects\sales-info\data\VectisReport_sales.csv", $FC_OVERWRITE)
 Exit
+
 
 Func DefaultFromDate()
 	Local $fromDate
@@ -52,8 +55,8 @@ Func VectisLogin($id, $pswd)
    Run("C:\VectisClient\bin\jade.exe appServer=10.23.34.4 appServerPort=6021 app=Vectis schema=AppSchema")
 
    Local $hWnd = WinWaitActive("Welcome to Vectis - Logon")
-   ControlSetText($hWnd, "", "Jade:Edit1", $id)
-   ControlSetText($hWnd, "", "Jade:Edit2", $pswd)
+   ControlSetText($hWnd, "", "Jade:Edit2", $id)
+   ControlSetText($hWnd, "", "Jade:Edit1", $pswd)
    ControlClick($hWnd, "", "Jade:JadeMask1")
 
    Local $hWnd = WinWaitActive("Vectis")
@@ -61,20 +64,21 @@ EndFunc
 
 Func DownloadReport($fromDate, $toDate)
    Local $hWnd = WinActivate("Vectis")
+   Sleep(1000)
    Send("!R{RIGHT}{ENTER}")    ; Report - Passenger Revenue - Sales
 
    Local $hWnd = WinWaitActive("Vectis - [Passenger Sales Reports]")
-   ControlClick($hWnd, "", "Jade:ListBox1", "left", 2, 134, 228)
+   ControlClick($hWnd, "", "Jade:ListBox1", "left", 2, 134, 118)
 
-   Local $hWnd = WinWaitActive("Vectis - [Sale Tax Manager]")
+   Local $hWnd = WinWaitActive("Vectis - [Sale FOP Manager]")
    ; Filter On: Settlement Date
-   ControlClick($hWnd, "", "Jade:Edit1")
-   ControlSetText($hWnd, "", "Jade:Edit1", $fromDate)  ; Date From:
+   ControlClick($hWnd, "", "Jade:Edit17")
+   ControlSetText($hWnd, "", "Jade:Edit17", $fromDate)  ; Date From:
    Send("{TAB}")
-   ControlClick($hWnd, "", "Jade:Edit2")
-   ControlSetText($hWnd, "", "Jade:Edit2", $toDate)  ; Date To:
+   ControlClick($hWnd, "", "Jade:Edit18")
+   ControlSetText($hWnd, "", "Jade:Edit18", $toDate)  ; Date To:
    Send("{TAB}")
-   ControlClick($hWnd, "", "Jade:Button23")
+   ControlClick($hWnd, "", "Jade:Button2")
 
    ; Sometimes following confirm window appears
    WinWait("Report Period", "", 5)
@@ -84,14 +88,14 @@ Func DownloadReport($fromDate, $toDate)
    EndIf
 
    Local $hWnd = WinWaitActive("Printer Options")
-   ControlClick($hWnd, "", "Button10")  ; Export
+   ControlClick($hWnd, "", "Jade:OptionButton6")  ; Export
    Sleep(10000)
-   ControlClick($hWnd, "", "ComboBox1")      ; CSV
+   ControlClick($hWnd, "", "Jade:ComboBox3")      ; CSV
    Sleep(3000)
    Send("{UP}{TAB}")
-   ControlClick($hWnd, "", "Jade:Button3")        ; OK --> Run
+   ControlClick($hWnd, "", "Jade:Button4")        ; OK --> Run
 
    Local $hWnd = WinWaitActive("File/s Created")
    ControlClick($hWnd, "", "Button1")
-   WinWaitActive("Vectis")
+   WinActivate("Vectis")
 EndFunc
