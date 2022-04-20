@@ -31,9 +31,8 @@ var (
 	amount      float64
 )
 
-
 // QuerySalesPG show query results from database
-func QuerySalesPG(reportType string, fromDate string, toDate string) {
+func QuerySalesPG(reportType string, vat bool, fromDate string, toDate string) {
 	c := ParseConfig().PGConn
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.User, c.Password, c.DbName)
@@ -45,13 +44,13 @@ func QuerySalesPG(reportType string, fromDate string, toDate string) {
 
 	switch reportType {
 	case "table":
-		salesTabularPG1(db, fromDate, toDate)
-		salesTabularPG2(db, fromDate, toDate)
+		salesTabularPG1(db, vat, fromDate, toDate)
+		salesTabularPG2(db, vat, fromDate, toDate)
 	case "raw":
 		salesRawPG(db, fromDate, toDate)
 	default:
-		salesTabularPG1(db, fromDate, toDate)
-		salesTabularPG2(db, fromDate, toDate)
+		salesTabularPG1(db, vat, fromDate, toDate)
+		salesTabularPG2(db, vat, fromDate, toDate)
 	}
 }
 
@@ -76,14 +75,27 @@ func salesRawPG(db *sql.DB, fromDate string, toDate string) {
 	fmt.Printf("\n")
 }
 
-func salesTabularPG1(db *sql.DB, fromDate string, toDate string) {
+func salesTabularPG1(db *sql.DB, vat bool, fromDate string, toDate string) {
 	var dsalesT, dyrT, dtaxT, dtotalT, isalesT, iyrT, itaxT, itotalT, gtotalT float64
+	var sql string
 
-	rows, err := db.Query(fmt.Sprintf("select * from sales_tax_yr_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	if vat {
+		sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
+
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\n-------------------------------------------------------------------------------------------------------------------------------------------------\n")
+
+	if vat {
+		fmt.Printf("\n                                                                                                                                [ VAT: included ]\n")
+	} else {
+		fmt.Printf("\n                                                                                                                                [ VAT: excluded ]\n")
+	}
+	fmt.Printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n")
 	fmt.Printf("%-10s %59s %59s\n", "", "DOM", "INTL")
 	fmt.Printf("           ---------------------------------------------------------- ---------------------------------------------------------- \n")
 	fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s %14s %14s\n",
@@ -95,7 +107,7 @@ func salesTabularPG1(db *sql.DB, fromDate string, toDate string) {
 			log.Fatal(err)
 		}
 		fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s %14s %14s\n",
-			salesdate[0:10], commas(int(dsales)), commas(int(dyr)), commas(int(dtax)), commas(int(dtotal)), 
+			salesdate[0:10], commas(int(dsales)), commas(int(dyr)), commas(int(dtax)), commas(int(dtotal)),
 			commas(int(isales)), commas(int(iyr)), commas(int(itax)), commas(int(itotal)), commas(int(gtotal)))
 		dsalesT += dsales
 		dyrT += dyr
@@ -109,20 +121,33 @@ func salesTabularPG1(db *sql.DB, fromDate string, toDate string) {
 	}
 	fmt.Printf("---------- -------------- -------------- -------------- -------------- -------------- -------------- -------------- -------------- --------------\n")
 	fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s %14s %14s\n",
-		"Total", commas(int(dsalesT)), commas(int(dyrT)), commas(int(dtaxT)), commas(int(dtotalT)), 
+		"Total", commas(int(dsalesT)), commas(int(dyrT)), commas(int(dtaxT)), commas(int(dtotalT)),
 		commas(int(isalesT)), commas(int(iyrT)), commas(int(itaxT)), commas(int(itotalT)), commas(int(gtotalT)))
 	fmt.Printf("---------- -------------- -------------- -------------- -------------- -------------- -------------- -------------- -------------- --------------\n")
 	fmt.Printf("\n")
 }
 
-func salesTabularPG2(db *sql.DB, fromDate string, toDate string) {
+func salesTabularPG2(db *sql.DB, vat bool, fromDate string, toDate string) {
 	var dsalesT, drfndT, isalesT, irfndT float64
+	var sql string
 
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	if vat {
+		sql = fmt.Sprintf("select salesdate, dom_sales, dom_refund, dom_total, intl_sales, intl_refund, intl_total, g_total	from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select salesdate, dom_sales_net, dom_refund_net, dom_total_net, intl_sales, intl_refund, intl_total, g_total_net from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
+
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\n-------------------------------------------------------------------------------------------------------------------\n")
+
+	if vat {
+		fmt.Printf("\n                                                                                                  [ VAT: included ]\n")
+	} else {
+		fmt.Printf("\n                                                                                                  [ VAT: excluded ]\n")
+	}
+	fmt.Printf("-------------------------------------------------------------------------------------------------------------------\n")
 	fmt.Printf("%-10s %44s %44s\n", "", "DOM", "INTL")
 	fmt.Printf("           -------------------------------------------- --------------------------------------------\n")
 	fmt.Printf("%-10s %14s %14s %14s %14s %14s %14s %14s\n",

@@ -19,6 +19,7 @@ var (
 	flgSrc   string
 	flgDst   string
 	flgRpt   string
+	flgVat   bool
 )
 
 // ParseCmdLineFlags is function parsing command line argument options
@@ -35,6 +36,7 @@ func ParseCmdLineFlags(cfg Config) {
 	flag.StringVar(&flgSrc, "src", path.Join(d, cfg.Data.ImportFile), "source file")
 	flag.StringVar(&flgDst, "dst", path.Join(d, cfg.Data.ExportFile), "output file")
 	flag.StringVar(&flgRpt, "rpt", "tabular", "report type")
+	flag.BoolVar(&flgVat, "vat", false, "include VAT in results")
 	flag.Parse()
 }
 
@@ -45,7 +47,7 @@ func DisplayUsage() {
 	fmt.Println("         -gubun sales|taxyr -id ******* -pswd ********                  ] download |")
 	fmt.Println("       [ -gubun sales|taxyr -in filename -out filename                  ] convert  |")
 	fmt.Println("       [ -gubun sales|taxyr -src filename                               ] import   |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rpt tabular|raw               ] query    |")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rpt tabular|raw -vat          ] query    |")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rtp tabular|raw -dst filename ] export   |")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                ] all       ")
 	fmt.Println(" * all : convert -> import -> query -> export                                       ")
