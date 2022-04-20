@@ -10,7 +10,8 @@ prev.year = 2019
 gs.id = "1MqFAbr4zWftHKI2YU9vHPSUFeygfOWR621Akne7dAu8"
 
 # ---- automatic config ---------------------------------------------------
-key.date = last.sunday()
+key.date = last.sunday() + 2
+# key.date = ymd("20220419")
 key.month = month(key.date)
 week.from = day(key.date - 6)
 week.to = day(key.date)
@@ -167,7 +168,7 @@ curr.month.sales.yr <- function(curr, last, prev) {
               prev.t = sum(D_Sales + D_YR + I_Sales + I_YR))
   
   df.curr %>% left_join(df.last) %>% left_join(df.prev) %>%
-    mutate(month = sprintf("%d.%1 ~ %d.%d", key.month, key.month, week.to)) 
+    mutate(month = sprintf("%d.1 ~ %d.%d", key.month, key.month, week.to)) 
 }
 
 monthly.sales.yr <- function(curr, last, prev) {

@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(googledrive)
 library(googlesheets4)
 library(glue)
 library(lubridate)
@@ -26,6 +27,25 @@ last.sunday <- function() {
     yoil == "일" ~ today() - 7,
   )
 }
+```
+
+```{r echo=FALSE}
+## manual config
+key.date = last.sunday() + 2
+# key.date = ymd(20220419)
+
+prev.year = 2019  
+gs.id = "1MqFAbr4zWftHKI2YU9vHPSUFeygfOWR621Akne7dAu8"
+
+## auto config
+key.month = month(key.date)
+week.from = day(key.date - 6)
+week.to = day(key.date)
+curr.year = year(key.date)
+last.year = curr.year - 1
+```
+
+```{r echo=FALSE}
 
 curr.week.sales <- function(curr, last, prev) {
   df.curr <- curr %>% 
@@ -235,22 +255,12 @@ make.sales.yr.smry <- function(curr, last, prev) {
 }
 ```
 
-```{r echo=FALSE}
-prev.year = 2019  
-gs.id = "1MqFAbr4zWftHKI2YU9vHPSUFeygfOWR621Akne7dAu8"
-
-key.date = last.sunday() + 2
-key.month = month(key.date)
-week.from = day(key.date - 6)
-week.to = day(key.date)
-curr.year = year(key.date)
-last.year = curr.year - 1
-```
-
 ```{r include=FALSE}
 sales.curr <- read_sheet(gs.id, sheet = glue('{curr.year}')) %>% 
   mutate(Date = ymd(format(Date, "%Y-%m-%d"))) %>% 
   mutate(month = month(Date), day = day(Date))
+
+options(gargle_oauth_email = "hohyunkim@jinair.com")
 
 sales.last <- read_sheet(gs.id, sheet = glue('{last.year}')) %>% 
   mutate(Date = ymd(format(Date, "%Y-%m-%d"))) %>% 
