@@ -45,7 +45,7 @@ func handleRowSales(row []string) []string {
 	fop := row[0]
 	fopdesc := row[1]
 	agencyType := row[2]
-	salesDate := row[4]
+	salesDate := changeDateFormat(row[4])
 	salesType := row[5]
 	ticket := row[7]
 	itinerary := row[10]
@@ -62,7 +62,7 @@ func handleRowTaxYr(row []string) []string {
 	var taxYr string
 	code := row[0]
 	domIntl := row[2]
-	salesDate := row[4]
+	salesDate := changeDateFormat(row[4])
 	ccy := row[5]
 	salesAmt := strings.ReplaceAll(row[6], ",", "")
 	refundAmt := strings.ReplaceAll(row[7], ",", "")
@@ -114,4 +114,32 @@ func chooseSr(krwStr string) string {
 		return "Sales"
 	}
 	return "Refund"
+}
+
+func changeDateFormat(dt string) string {
+	// dt: "2022-09-01"
+	if strings.HasPrefix(dt, "202") && len(dt) == 10 {
+		return dt
+	}
+	// dt: "dd-mmm-yy" (ex, "01-SEP-22")
+	var dd, mm, yyyy string
+	months := map[string]string{
+		"Jan": "01",
+	    "Feb": "02",
+	    "Mar": "03",
+	    "Apr": "04",
+	    "May": "05",
+	    "Jun": "06",
+	    "Jul": "07",
+	    "Aug": "08",
+	    "Sep": "09",
+	    "Oct": "10",
+	    "Nov": "11",
+	    "Dec": "12",
+	}
+	s := strings.Split(dt, "-")
+	dd = s[0]
+	mm = months[s[1]]
+	yyyy = "20" + s[2]
+	return fmt.Sprintf("%s-%s-%s", yyyy, mm, dd)
 }
