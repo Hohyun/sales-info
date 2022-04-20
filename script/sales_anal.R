@@ -99,17 +99,18 @@ accum.sales <- function(curr, last, prev) {
     summarise(to.mm = key.month, to.dd = week.to, curr.d = sum(D_Sales), curr.i = sum(I_Sales), curr.t = sum(G_Sales))
   
   df.last <- last %>% 
-    filter(Date <= key.date) %>% 
+    filter(Date <= make_date(last.year, key.month, week.to)) %>% 
     summarise(to.mm = key.month, to.dd = week.to, last.d = sum(D_Sales), last.i = sum(I_Sales), last.t = sum(G_Sales))
   
   df.prev <- prev %>% 
-    filter(Date <= key.date) %>% 
+    filter(Date <= make_date(prev.year, key.month, week.to)) %>% 
     summarise(to.mm = key.month, to.dd = week.to, prev.d = sum(D_Sales), prev.i = sum(I_Sales), prev.t = sum(G_Sales))
   
   df.curr %>% left_join(df.last) %>% left_join(df.prev) %>%
     mutate(month = sprintf("1.1 ~ %d.%d", to.mm, to.dd)) %>% 
     select(month, 3:11)
 }
+
 
 curr.week.sales.yr <- function(curr, last, prev) {
   df.curr <- curr %>% 
@@ -204,14 +205,14 @@ accum.sales.yr <- function(curr, last, prev) {
               curr.t = sum(D_Sales + D_YR + I_Sales + I_YR))
   
   df.last <- last %>% 
-    filter(Date <= key.date) %>% 
+    filter(Date <= make_date(last.year, key.month, week.to)) %>% 
     summarise(to.mm = key.month, to.dd = week.to, 
               last.d = sum(D_Sales + D_YR), 
               last.i = sum(I_Sales + I_YR), 
               last.t = sum(D_Sales + D_YR + I_Sales + I_YR))
   
   df.prev <- prev %>% 
-    filter(Date <= key.date) %>% 
+    filter(Date <= make_date(prev.year, key.month, week.to)) %>% 
     summarise(to.mm = key.month, to.dd = week.to, 
               prev.d = sum(D_Sales + D_YR), 
               prev.i = sum(I_Sales + I_YR), 
