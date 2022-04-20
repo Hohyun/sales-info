@@ -4,3 +4,4 @@ go.sum
 *tmp
 data/*.csv
 data/selabd.db
+script/*.html
