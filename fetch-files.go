@@ -15,13 +15,8 @@ import (
 )
 
 // FetchFiles : fetch invoice and payment files from ftp server
-func FetchFiles() {
+func FetchFiles(date string) {
 	fmt.Println("Fetch files from ftp server...")
-	ftpDownload("FOP")
-	ftpDownload("TAX")
-}
-
-func ftpDownload(category string) {
 	addr := "10.23.34.4:22"
 	config := &ssh.ClientConfig{
 		User: "ibsSale2",
@@ -50,11 +45,11 @@ func ftpDownload(category string) {
 		log.Fatalf("Unable to start SFTP subsystem: %v\n", err)
 	}
 	defer sc.Close()
-	downloadFiles(sc, category)
+	downloadFiles(sc, date)
 }
 
-func downloadFiles(sc *sftp.Client, category string) (err error) {
-	remoteDir := "/SalesData" + strings.Title(category)
+func downloadFiles(sc *sftp.Client, date string) (err error) {
+	remoteDir := "/SalesData"
 	log.Printf("Remote Directory [%s] ...", remoteDir)
 
 	files, err := sc.ReadDir(remoteDir)
@@ -63,25 +58,22 @@ func downloadFiles(sc *sftp.Client, category string) (err error) {
 		return
 	}
 
-	dt := time.Now()
-	// dt = now.AddDate(0, 0, -3)
-	year, month, day := dt.Date()
-	dateStr := fmt.Sprintf("%d-%02d-%02d", year, month, day)
-	log.Printf("Current date: %s", dateStr)
+	// default date: yesterday
+	if date == "" {
+		dt := time.Now().AddDate(0, 0, -1)
+		year, month, day := dt.Date()
+		date = fmt.Sprintf("%d-%02d-%02d", year, month, day)
+	}
 
 	for _, f := range files {
-		var filename, modTime, size string
+		yymmdd := strings.ReplaceAll(date[2:], "-", "")
+		fopPrefix := "SALE_FOP_TKT_" + yymmdd + "-" + yymmdd
+		taxPrefix := "SALE_TAX_TKT_" + yymmdd + "-" + yymmdd
+		filename := f.Name()
 
-		filename = f.Name()
-		modTime = f.ModTime().Format("2006-01-02 15:04:05")
-		size = fmt.Sprintf("%12d", f.Size())
-
-		if strings.HasPrefix(modTime, dateStr) {
-			log.Printf("Found: %19s %12s %s", modTime, size, filename)
+		if strings.HasPrefix(filename, fopPrefix) || strings.HasPrefix(filename, taxPrefix) {
 			downloadAction(sc, remoteDir, filename)
-		} else {
-			// logger.Infof("Skip: %19s %12s %s", modTime, size, name)
-		}
+		} 
 	}
 
 	return
@@ -93,9 +85,7 @@ func downloadAction(sc *sftp.Client, remoteDir string, remoteFile string) (err e
 
 	if strings.HasPrefix(remoteFile, "SALE_FOP") {
 		localFile = "./data/" + "VectisReport_sales.csv"
-	} 
-	
-	if strings.HasPrefix(remoteFile, "SALE_TAX"){
+	} else if strings.HasPrefix(remoteFile, "SALE_TAX"){
 		localFile = "./data/" + "VectisReport_taxyr.csv"
 	}
 
