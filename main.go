@@ -34,6 +34,7 @@ func main() {
 	case "fetch":
 		FetchFiles(flgDate)
 	case "all":
+		FetchFiles(flgDate)
 		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
 		if backend == "postgresql" {
