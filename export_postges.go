@@ -45,9 +45,16 @@ func exportRawPG(db *sql.DB, dstFile string, fromDate string, toDate string) {
 	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
 }
 
-func exportTabularPG1(db *sql.DB, dstFile string, fromDate string, toDate string) {
+func exportTabularPG1(db *sql.DB, dstFile string, vat bool, fromDate string, toDate string) {
 	// Get data: Sale by date
-	rows, err := db.Query(fmt.Sprintf("select * from sales_tax_yr_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	var sql string
+	if vat {
+		sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
+
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
@@ -97,9 +104,16 @@ func exportTabularPG1(db *sql.DB, dstFile string, fromDate string, toDate string
 	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
 }
 
-func exportTabularPG2(db *sql.DB, dstFile string, fromDate string, toDate string) {
+func exportTabularPG2(db *sql.DB, dstFile string, vat bool, fromDate string, toDate string) {
 	// Get data: Sale by date
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	var sql string
+	if vat {
+		sql = fmt.Sprintf("select salesdate, dom_sales, dom_refund, dom_total, intl_sales, intl_refund, intl_total, g_total	from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select salesdate, dom_sales_net, dom_refund_net, dom_total_net, intl_sales, intl_refund, intl_total, g_total_net from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
+
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
@@ -144,7 +158,7 @@ func exportTabularPG2(db *sql.DB, dstFile string, fromDate string, toDate string
 }
 
 // ExportCsvPG : export sales data with different format.
-func ExportCsvPG(reportType string, dstFile string, fromDate string, toDate string) {
+func ExportCsvPG(reportType string, dstFile string, vat bool, fromDate string, toDate string) {
 	// Open database
 	c := ParseConfig().PGConn
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -157,12 +171,12 @@ func ExportCsvPG(reportType string, dstFile string, fromDate string, toDate stri
 
 	switch reportType {
 	case "tabular":
-		exportTabularPG1(db, dstFile, fromDate, toDate)
-		exportTabularPG2(db, dstFile, fromDate, toDate)
+		exportTabularPG1(db, dstFile, vat, fromDate, toDate)
+		exportTabularPG2(db, dstFile, vat, fromDate, toDate)
 	case "raw":
 		exportRawPG(db, dstFile, fromDate, toDate)
 	default:
-		exportTabularPG1(db, dstFile, fromDate, toDate)
-		exportTabularPG2(db, dstFile, fromDate, toDate)
+		exportTabularPG1(db, dstFile, vat, fromDate, toDate)
+		exportTabularPG2(db, dstFile, vat, fromDate, toDate)
 	}
 }

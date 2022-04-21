@@ -47,7 +47,7 @@ func main() {
 				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
 			}
 			QuerySalesPG(flgRpt, flgVat, flgFrom, flgTo)
-			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
+			ExportCsvPG(flgRpt, flgDst, flgVat, flgFrom, flgTo)
 		} else {
 			if flgGubun == "sales" {
 				ImportCsvSqSales(cfg)
@@ -92,7 +92,7 @@ func main() {
 		}
 	case "export":
 		if backend == "postgresql" {
-			ExportCsvPG(flgRpt, flgDst, flgFrom, flgTo)
+			ExportCsvPG(flgRpt, flgDst, flgVat, flgFrom, flgTo)
 		} else {
 			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
 		}
