@@ -28,9 +28,9 @@ func ParseCmdLineFlags(cfg Config) {
 	d := cfg.Data.DirName
 	flag.BoolVar(&flgHelp, "help", false, "show help")
 	flag.StringVar(&flgGubun, "gubun", "", "sales or taxyr")
-	flag.StringVar(&flgDate, "date", "", "sales date (yyyy-mm-dd")
-	flag.StringVar(&flgFrom, "from", "", "from date (yyyy-mm-dd)")
-	flag.StringVar(&flgTo, "to", "", "to date (yyyy-mm-dd) ")
+	flag.StringVar(&flgDate, "date", "", "sales date (yyyy-mm-dd, default: yesterday)")
+	flag.StringVar(&flgFrom, "from", "", "from date (yyyy-mm-dd, default: yesterday)")
+	flag.StringVar(&flgTo, "to", "", "to date (yyyy-mm-dd, default: yesterday) ")
 	flag.StringVar(&flgID, "id", "", "vectis id")
 	flag.StringVar(&flgPswd, "pswd", "", "vectis password")
 	flag.StringVar(&flgIn, "in", path.Join(d, cfg.Data.SourceFile), "input file ")
