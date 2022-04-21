@@ -31,6 +31,8 @@ func main() {
 	switch action {
 	case "download":
 		DownloadData(flgGubun, flgFrom, flgTo, flgID, flgPswd, cfg)
+	case "fetch":
+		FetchFiles(flgDate)
 	case "all":
 		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))

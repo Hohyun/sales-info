@@ -10,6 +10,7 @@ import (
 var (
 	flgHelp  bool
 	flgGubun string
+	flgDate  string
 	flgFrom  string
 	flgTo    string
 	flgID    string
@@ -27,6 +28,7 @@ func ParseCmdLineFlags(cfg Config) {
 	d := cfg.Data.DirName
 	flag.BoolVar(&flgHelp, "help", false, "show help")
 	flag.StringVar(&flgGubun, "gubun", "", "sales or taxyr")
+	flag.StringVar(&flgDate, "date", "", "sales date (yyyy-mm-dd")
 	flag.StringVar(&flgFrom, "from", "", "from date (yyyy-mm-dd)")
 	flag.StringVar(&flgTo, "to", "", "to date (yyyy-mm-dd) ")
 	flag.StringVar(&flgID, "id", "", "vectis id")
@@ -45,6 +47,7 @@ func DisplayUsage() {
 	fmt.Println("Usage: sales-info")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                            ")
 	fmt.Println("         -gubun sales|taxyr -id ******* -pswd ********                  ] download |")
+	fmt.Println("       [ -date yyyy-mm-dd                                               ] fetch    |")
 	fmt.Println("       [ -gubun sales|taxyr -in filename -out filename                  ] convert  |")
 	fmt.Println("       [ -gubun sales|taxyr -src filename                               ] import   |")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rpt tabular|raw -vat          ] query    |")
