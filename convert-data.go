@@ -69,10 +69,11 @@ func handleRowTaxYr(row []string) []string {
 	reissueAmt := strings.ReplaceAll(row[8], ",", "")
 	if code == "YR" {
 		taxYr = "YR"
+	} else if code == "Tax" {	
+		taxYr = "TaxYR"
 	} else {
 		taxYr = "TAX"
 	}
-
 	return []string{code, taxYr, domIntl, salesDate, ccy, salesAmt, refundAmt, reissueAmt}
 }
 
@@ -103,7 +104,7 @@ func chooseDi(fop string, agencyT string, salesT string, itin string) string {
 func chooseSr(krwStr string) string {
 	// handle header line
 	if krwStr == "KRW Amount" {
-		return "KRW Amount"
+		return "SalesRefund"
 	}
 
 	i64, err := strconv.ParseInt(krwStr, 10, 64)
@@ -117,6 +118,10 @@ func chooseSr(krwStr string) string {
 }
 
 func changeDateFormat(dt string) string {
+	// headline
+	if dt == "Sales Date" {
+		return dt
+	}
 	// dt: "2022-09-01"
 	if strings.HasPrefix(dt, "202") && len(dt) == 10 {
 		return dt
