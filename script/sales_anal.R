@@ -7,7 +7,8 @@ library(kableExtra)
 # ---- manual config ------------------------------------------------------
 # Please check next parameters are correct before running the script
 prev.year = 2019  
-gs.id = "1MqFAbr4zWftHKI2YU9vHPSUFeygfOWR621Akne7dAu8"
+gs.source.id = "1MqFAbr4zWftHKI2YU9vHPSUFeygfOWR621Akne7dAu8"
+gs.report.id = "1sn2miEacsxPRdaqmyMSuKQNOON_DVRp5of3LI0vf5d8"
 
 # ---- automatic config ---------------------------------------------------
 key.date = last.sunday() + 2
@@ -226,31 +227,31 @@ accum.sales.yr <- function(curr, last, prev) {
 
 make.sales.smry <- function(curr, last, prev) {
   df.curr.week <- curr.week.sales(sales.curr, sales.last, sales.prev)
+  df.accum   <- accum.sales(sales.curr, sales.last, sales.prev)
   df.monthly <- monthly.sales(sales.curr, sales.last, sales.prev)
   df.curr.month <- curr.month.sales(sales.curr, sales.last, sales.prev)
-  df.accum   <- accum.sales(sales.curr, sales.last, sales.prev)
-  bind_rows(df.curr.week, df.monthly, df.curr.month, df.accum)
+  bind_rows(df.curr.week, df.accum, df.monthly, df.curr.month)
 }
 
 make.sales.yr.smry <- function(curr, last, prev) {
   df.curr.week <- curr.week.sales.yr(sales.curr, sales.last, sales.prev)
+  df.accum   <- accum.sales.yr(sales.curr, sales.last, sales.prev)
   df.monthly <- monthly.sales.yr(sales.curr, sales.last, sales.prev)
   df.curr.month <- curr.month.sales.yr(sales.curr, sales.last, sales.prev)
-  df.accum   <- accum.sales.yr(sales.curr, sales.last, sales.prev)
-  bind_rows(df.curr.week, df.monthly, df.curr.month, df.accum)
+  bind_rows(df.curr.week, df.accum, df.monthly, df.curr.month)
 }
 
 # ---- sales results ----------------------------------------------------
-sales.curr <- read_sheet(gs.id, sheet = glue('{curr.year}')) %>% 
-  mutate(Date = ymd(format(Date, "%Y-%m-%d"))) %>% 
+sales.curr <- read_sheet(gs.source.id, sheet = glue('{curr.year}'),
+                         col_types = "D_n_____nnn___n")  %>% 
   mutate(month = month(Date), day = day(Date))
 
-sales.last <- read_sheet(gs.id, sheet = glue('{last.year}')) %>% 
-  mutate(Date = ymd(format(Date, "%Y-%m-%d"))) %>% 
+sales.last <- read_sheet(gs.source.id, sheet = glue('{last.year}'),
+                         col_types = "D_n_____nnn___n")  %>% 
   mutate(month = month(Date), day = day(Date))
 
-sales.prev <- read_sheet(gs.id, sheet = glue('{prev.year}')) %>% 
-  mutate(Date = ymd(format(Date, "%Y-%m-%d"))) %>% 
+sales.prev <- read_sheet(gs.id, sheet = glue('{prev.year}'),
+                         col_types = "D_n_____nnn___n")  %>% 
   mutate(month = month(Date), day = day(Date))
 
 # n/a -> 0
@@ -262,22 +263,8 @@ smry.sales <- make.sales.smry(sales.curr, sales.last, sales.prev)
 smry.sales.yr <- make.sales.yr.smry(sales.curr, sales.last, sales.prev)
 
 
-smry.sales %>% 
-  mutate(curr.d = curr.d / 100000000, 
-         curr.i = curr.i / 100000000,
-         curr.t = curr.t / 100000000, last.d = last.d / 100000000,
-         last.i = last.i / 100000000, last.t = last.t / 100000000,
-         prev.d = prev.d / 100000000, prev.i = prev.i / 100000000,
-         prev.t = prev.t / 100000000,
-         d.YoY1 = sprintf("%+.1f%%", (curr.d / last.d - 1) * 100),
-         d.YoY2 = sprintf("%+.1f%%", (curr.d / prev.d - 1) * 100),
-         i.YoY1 = sprintf("%+.1f%%", (curr.i / last.i - 1) * 100),
-         i.YoY2 = sprintf("%+.1f%%", (curr.i / prev.i - 1) * 100),
-         t.YoY1 = sprintf("%+.1f%%", (curr.t / last.t - 1) * 100),
-         t.YoY2 = sprintf("%+.1f%%", (curr.t / prev.t - 1) * 100)) %>%
-  select(month, curr.d, d.YoY1, d.YoY2, curr.i, i.YoY1, i.YoY2, curr.t, t.YoY1, t.YoY2,
-         last.d, last.i, last.t, prev.d, prev.i, prev.t)
-  
+write_sheet(smry.sales, gs.report.id, sheet = "salesdata_no_fsc")
+write_sheet(smry.sales.yr, gs.report.id, sheet = "salesdata_with_fsc")
 
 
 
