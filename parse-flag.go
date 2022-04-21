@@ -52,8 +52,8 @@ func DisplayUsage() {
 	fmt.Println("       [ -gubun sales|taxyr -src filename                               ] import   |")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rpt tabular|raw -vat          ] query    |")
 	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -rtp tabular|raw -dst filename ] export   |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                ] all       ")
-	fmt.Println(" * all : convert -> import -> query -> export                                       ")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -date yyyy-mm-dd               ] all       ")
+	fmt.Println(" * all : fetch -> convert -> import -> query -> export                              ")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
