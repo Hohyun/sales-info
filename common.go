@@ -26,7 +26,7 @@ func getDefautFromDate() string {
 	var dt time.Time
 	switch int(now.Weekday()) {
 	case 1: // MON
-		dt = now.AddDate(0, 0, -3)
+		dt = now.AddDate(0, 0, -1)
 	default:
 		dt = now.AddDate(0, 0, -1)
 	}
