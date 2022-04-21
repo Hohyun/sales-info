@@ -4,6 +4,20 @@ library(lubridate)
 library(dplyr)
 library(knitr)
 library(kableExtra)
+
+last.sunday <- function() {
+  yoil <- weekdays(today(), abbreviate = TRUE)
+  case_when(
+    yoil == "월" ~ today() - 1,
+    yoil == "화" ~ today() - 2,
+    yoil == "수" ~ today() - 3,
+    yoil == "목" ~ today() - 4,
+    yoil == "금" ~ today() - 5,
+    yoil == "토" ~ today() - 6,
+    yoil == "일" ~ today() - 7,
+  )
+}
+
 # ---- manual config ------------------------------------------------------
 # Please check next parameters are correct before running the script
 prev.year = 2019  
@@ -20,19 +34,6 @@ curr.year = year(key.date)
 last.year = curr.year - 1
 
 # ---- functions ---------------------------------------------------------
-last.sunday <- function() {
-  yoil <- weekdays(today(), abbreviate = TRUE)
-  case_when(
-    yoil == "월" ~ today() - 1,
-    yoil == "화" ~ today() - 2,
-    yoil == "수" ~ today() - 3,
-    yoil == "목" ~ today() - 4,
-    yoil == "금" ~ today() - 5,
-    yoil == "토" ~ today() - 6,
-    yoil == "일" ~ today() - 7,
-  )
-}
-
 curr.week.sales <- function(curr, last, prev) {
   df.curr <- curr %>% 
     mutate(month = month(Date), day = day(Date)) %>%
@@ -250,7 +251,7 @@ sales.last <- read_sheet(gs.source.id, sheet = glue('{last.year}'),
                          col_types = "D_n_____nnn___n")  %>% 
   mutate(month = month(Date), day = day(Date))
 
-sales.prev <- read_sheet(gs.id, sheet = glue('{prev.year}'),
+sales.prev <- read_sheet(gs.source.id, sheet = glue('{prev.year}'),
                          col_types = "D_n_____nnn___n")  %>% 
   mutate(month = month(Date), day = day(Date))
 
