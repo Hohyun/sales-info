@@ -15,7 +15,7 @@ import (
 )
 
 // FetchFiles : fetch invoice and payment files from ftp server
-func FetchFiles(date string) {
+func FetchFiles(from string, to string) {
 	fmt.Println("Fetch files from ftp server...")
 	addr := "10.23.34.4:22"
 	config := &ssh.ClientConfig{
@@ -45,10 +45,10 @@ func FetchFiles(date string) {
 		log.Fatalf("Unable to start SFTP subsystem: %v\n", err)
 	}
 	defer sc.Close()
-	downloadFiles(sc, date)
+	downloadFiles(sc, from, to)
 }
 
-func downloadFiles(sc *sftp.Client, date string) (err error) {
+func downloadFiles(sc *sftp.Client, from string, to string) (err error) {
 	remoteDir := "/SalesData"
 	log.Printf("Remote Directory [%s] ...", remoteDir)
 
@@ -59,16 +59,18 @@ func downloadFiles(sc *sftp.Client, date string) (err error) {
 	}
 
 	// default date: yesterday
-	if date == "" {
+	if from == "" || to == "" {
 		dt := time.Now().AddDate(0, 0, -1)
 		year, month, day := dt.Date()
-		date = fmt.Sprintf("%d-%02d-%02d", year, month, day)
+		from = fmt.Sprintf("%d-%02d-%02d", year, month, day)
+		to = fmt.Sprintf("%d-%02d-%02d", year, month, day)
 	}
 
 	for _, f := range files {
-		yymmdd := strings.ReplaceAll(date[2:], "-", "")
-		fopPrefix := "SALE_FOP_TKT_" + yymmdd + "-" + yymmdd
-		taxPrefix := "SALE_TAX_TKT_" + yymmdd + "-" + yymmdd
+		yymmdd1 := strings.ReplaceAll(from[2:], "-", "")
+		yymmdd2 := strings.ReplaceAll(to[2:], "-", "")
+		fopPrefix := "SALE_FOP_TKT_" + yymmdd1 + "-" + yymmdd2
+		taxPrefix := "SALE_TAX_TKT_" + yymmdd1 + "-" + yymmdd2
 		filename := f.Name()
 
 		if strings.HasPrefix(filename, fopPrefix) || strings.HasPrefix(filename, taxPrefix) {
