@@ -86,10 +86,14 @@ func salesTabularPG1(db *sql.DB, raw bool, vat bool, fromDate string, toDate str
 		panic(err)
 	}
 
-	if vat {
-		fmt.Printf("\n                                                                                                                                [ VAT: included ]\n")
+	if raw {
+		fmt.Printf("\n                                                                                                                                     [ Raw Data ]\n")
 	} else {
-		fmt.Printf("\n                                                                                                                                [ VAT: excluded ]\n")
+		if vat {
+			fmt.Printf("\n                                                                                                                                [ VAT: included ]\n")
+		} else {
+			fmt.Printf("\n                                                                                                                                [ VAT: excluded ]\n")
+		}
 	}
 	fmt.Printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n")
 	fmt.Printf("%-10s %59s %59s\n", "", "DOM", "INTL")
@@ -137,7 +141,7 @@ func salesTabularPG2(db *sql.DB, raw bool, vat bool, fromDate string, toDate str
 		panic(err)
 	}
 
-	if vat {
+	if raw || vat {
 		fmt.Printf("\n                                                                                                  [ VAT: included ]\n")
 	} else {
 		fmt.Printf("\n                                                                                                  [ VAT: excluded ]\n")

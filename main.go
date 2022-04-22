@@ -57,8 +57,8 @@ func main() {
 				ImportCsvSqSales(cfg)
 				ImportCsvSqTaxYr(cfg)
 			}
-			QuerySalesSQ(flgRaw, flgVat, flgFrom, flgTo)
-			ExportCsvSQ(flgDst, flgRaw, flgVat, flgFrom, flgTo)
+			QuerySalesSQ(true, false, flgFrom, flgTo)
+			ExportCsvSQ(flgDst, true, false, flgFrom, flgTo)
 		}
 	case "convert":
 		if flgGubun == "sales" {
