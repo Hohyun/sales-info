@@ -34,24 +34,15 @@ var (
 ) */
 
 // QuerySalesSQ show query results from database
-func QuerySalesSQ(reportType string, fromDate string, toDate string, cfg Config) {
-	fmt.Println(cfg.SqliteDb)
+func QuerySalesSQ(raw bool, vat bool, fromDate string, toDate string) {
+	cfg := ParseConfig()
 	db, err := sql.Open("sqlite3", cfg.SqliteDb)
 	if err != nil {
 		log.Fatal("Failed to open a DB connection: ", err)
 	}
 	defer db.Close()
-
-	switch reportType {
-	case "table":
-		salesTabularSQ1(db, fromDate, toDate)
-		salesTabularSQ2(db, fromDate, toDate)
-	case "raw":
-		salesRawSQ(db, fromDate, toDate)
-	default:
-		salesTabularSQ1(db, fromDate, toDate)
-		salesTabularSQ2(db, fromDate, toDate)
-	}
+	salesTabularSQ1(db, raw, vat, fromDate, toDate)
+	salesTabularSQ2(db, raw, vat, fromDate, toDate)	
 }
 
 func salesRawSQ(db *sql.DB, fromDate string, toDate string) {
@@ -75,10 +66,20 @@ func salesRawSQ(db *sql.DB, fromDate string, toDate string) {
 	fmt.Printf("\n")
 }
 
-func salesTabularSQ1(db *sql.DB, fromDate string, toDate string) {
+func salesTabularSQ1(db *sql.DB, raw bool, vat bool, fromDate string, toDate string) {
 	var dsalesT, dyrT, dtaxT, dtotalT, isalesT, iyrT, itaxT, itotalT, gtotalT float64
+	var sql string
+	if raw {
+		sql = fmt.Sprintf("select * from sales_yr_tax_raw where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		if vat {
+			sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		} else {
+			sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		}
+	}
 
-	rows, err := db.Query(fmt.Sprintf("select * from sales_tax_yr_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
@@ -114,10 +115,16 @@ func salesTabularSQ1(db *sql.DB, fromDate string, toDate string) {
 	fmt.Printf("\n")
 }
 
-func salesTabularSQ2(db *sql.DB, fromDate string, toDate string) {
+func salesTabularSQ2(db *sql.DB, raw bool, vat bool, fromDate string, toDate string) {
 	var dsalesT, drfndT, isalesT, irfndT float64
+	var sql string
+	if raw || vat {
+		sql = fmt.Sprintf("select salesdate, dom_sales, dom_refund, dom_total, intl_sales, intl_refund, intl_total, g_total	from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select salesdate, dom_sales_net, dom_refund_net, dom_total_net, intl_sales, intl_refund, intl_total, g_total_net from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
 
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}

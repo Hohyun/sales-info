@@ -32,9 +32,9 @@ func main() {
 	case "download":
 		DownloadData(flgGubun, flgFrom, flgTo, flgID, flgPswd, cfg)
 	case "fetch":
-		FetchFiles(flgDate)
+		FetchFiles(flgFrom, flgTo)
 	case "all":
-		FetchFiles(flgDate)
+		FetchFiles(flgFrom, flgTo)
 		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
 		if backend == "postgresql" {
@@ -46,8 +46,8 @@ func main() {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
 			}
-			QuerySalesPG(flgRpt, flgVat, flgFrom, flgTo)
-			ExportCsvPG(flgRpt, flgDst, flgVat, flgFrom, flgTo)
+			QuerySalesPG(flgRaw, flgVat, flgFrom, flgTo)
+			ExportCsvPG(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		} else {
 			if flgGubun == "sales" {
 				ImportCsvSqSales(cfg)
@@ -57,8 +57,8 @@ func main() {
 				ImportCsvSqSales(cfg)
 				ImportCsvSqTaxYr(cfg)
 			}
-			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
-			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
+			QuerySalesSQ(flgRaw, flgVat, flgFrom, flgTo)
+			ExportCsvSQ(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		}
 	case "convert":
 		if flgGubun == "sales" {
@@ -92,15 +92,15 @@ func main() {
 		}
 	case "export":
 		if backend == "postgresql" {
-			ExportCsvPG(flgRpt, flgDst, flgVat, flgFrom, flgTo)
+			ExportCsvPG(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		} else {
-			ExportCsvSQ(flgRpt, flgDst, flgFrom, flgTo, cfg)
+			ExportCsvSQ(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		}
 	case "query":
 		if backend == "postgresql" {
-			QuerySalesPG(flgRpt, flgVat, flgFrom, flgTo)
+			QuerySalesPG(flgRaw, flgVat, flgFrom, flgTo)
 		} else {
-			QuerySalesSQ(flgRpt, flgFrom, flgTo, cfg)
+			QuerySalesSQ(flgRaw, flgVat, flgFrom, flgTo)
 		}
 	default:
 		DisplayUsage()

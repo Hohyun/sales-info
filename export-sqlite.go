@@ -35,43 +35,19 @@ var (
 	amount      float64
 ) */
 
-func exportRawSQ(db *sql.DB, dstFile string, fromDate string, toDate string) {
-	sqlStr := fmt.Sprintf(`select salesdate, agencytype, fop, fopdesc, domintl, salesrefund, ccy, amount, krwamt
-	from sales where salesdate between '%s' and '%s'`, fromDate, toDate)
-	rows, err := db.Query(sqlStr)
-	if err != nil {
-		panic(err)
-	}
-
-	var ss [][]string
-	ss = append(ss, []string{"SalesDate", "AgencyType", "Fop", "FopDesc", "DomIntl", "S_R", "Ccy", "Amount", "KrwAmount"})
-	for rows.Next() {
-		var s []string
-		err := rows.Scan(&salesdate, &agencytype, &fop, &fopdesc, &domintl, &salesrefund, &ccy, &amount, &krwamt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		s = append(s, salesdate[0:10], agencytype, fop, fopdesc, domintl, salesrefund, ccy,
-			fmt.Sprintf("%.0f", amount), fmt.Sprintf("%.0f", krwamt))
-		ss = append(ss, s)
-	}
-	// Write csv file
-	f, err := os.Create(dstFile)
-	if err != nil {
-		log.Fatal("Failed to create file: ", err)
-	}
-	w := csv.NewWriter(f)
-	defer f.Close()
-	err = w.WriteAll(ss)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
-}
-
-func exportTabularSQ1(db *sql.DB, dstFile string, fromDate string, toDate string) {
+func exportTabularSQ1(db *sql.DB, dstFile string, raw bool, vat bool, fromDate string, toDate string) {
 	// Get data: Sale by date
-	rows, err := db.Query(fmt.Sprintf("select * from sales_tax_yr_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+	var sql string
+	if raw {
+		sql = fmt.Sprintf("select * from sales_yr_tax_raw where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		if vat {
+			sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		} else {
+			sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		}
+	}
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
@@ -121,9 +97,14 @@ func exportTabularSQ1(db *sql.DB, dstFile string, fromDate string, toDate string
 	fmt.Printf("Sales results was exported to %s successfully!\n", dstFile)
 }
 
-func exportTabularSQ2(db *sql.DB, dstFile string, fromDate string, toDate string) {
-	// Get data: Sale by date
-	rows, err := db.Query(fmt.Sprintf("select * from sales_by_date where salesdate between '%s' and '%s'", fromDate, toDate))
+func exportTabularSQ2(db *sql.DB, dstFile string, raw bool, vat bool, fromDate string, toDate string) {
+	var sql string
+	if raw || vat {
+		sql = fmt.Sprintf("select salesdate, dom_sales, dom_refund, dom_total, intl_sales, intl_refund, intl_total, g_total	from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	} else {
+		sql = fmt.Sprintf("select salesdate, dom_sales_net, dom_refund_net, dom_total_net, intl_sales, intl_refund, intl_total, g_total_net from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
+	}
+	rows, err := db.Query(sql)
 	if err != nil {
 		panic(err)
 	}
@@ -168,23 +149,14 @@ func exportTabularSQ2(db *sql.DB, dstFile string, fromDate string, toDate string
 }
 
 // ExportCsvSQ : export sales data with different format.
-func ExportCsvSQ(reportType string, dstFile string, fromDate string, toDate string, cfg Config) {
-	// Open database
+func ExportCsvSQ(dstFile string, raw bool, vat bool, fromDate string, toDate string) {
+	cfg := ParseConfig()
 	db, err := sql.Open("sqlite3", cfg.SqliteDb)
 	if err != nil {
 		log.Fatal("Failed to open a DB connection: ", err)
 	}
 	defer db.Close()
-
-	switch reportType {
-	case "tabular":
-		exportTabularSQ1(db, dstFile, fromDate, toDate)
-		exportTabularSQ2(db, dstFile, fromDate, toDate)
-	case "raw":
-		exportRawSQ(db, dstFile, fromDate, toDate)
-	default:
-		exportTabularSQ1(db, dstFile, fromDate, toDate)
-		exportTabularSQ2(db, dstFile, fromDate, toDate)
-	}
+	exportTabularSQ1(db, dstFile, raw, vat, fromDate, toDate)
+	exportTabularSQ2(db, dstFile, raw, vat, fromDate, toDate)
 }
 

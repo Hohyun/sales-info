@@ -32,7 +32,7 @@ var (
 )
 
 // QuerySalesPG show query results from database
-func QuerySalesPG(reportType string, vat bool, fromDate string, toDate string) {
+func QuerySalesPG(raw bool, vat bool, fromDate string, toDate string) {
 	c := ParseConfig().PGConn
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.User, c.Password, c.DbName)
@@ -42,16 +42,8 @@ func QuerySalesPG(reportType string, vat bool, fromDate string, toDate string) {
 	}
 	defer db.Close()
 
-	switch reportType {
-	case "table":
-		salesTabularPG1(db, vat, fromDate, toDate)
-		salesTabularPG2(db, vat, fromDate, toDate)
-	case "raw":
-		salesRawPG(db, fromDate, toDate)
-	default:
-		salesTabularPG1(db, vat, fromDate, toDate)
-		salesTabularPG2(db, vat, fromDate, toDate)
-	}
+	salesTabularPG1(db, raw, vat, fromDate, toDate)
+	salesTabularPG2(db, raw, vat, fromDate, toDate)
 }
 
 func salesRawPG(db *sql.DB, fromDate string, toDate string) {
@@ -75,14 +67,18 @@ func salesRawPG(db *sql.DB, fromDate string, toDate string) {
 	fmt.Printf("\n")
 }
 
-func salesTabularPG1(db *sql.DB, vat bool, fromDate string, toDate string) {
+func salesTabularPG1(db *sql.DB, raw bool, vat bool, fromDate string, toDate string) {
 	var dsalesT, dyrT, dtaxT, dtotalT, isalesT, iyrT, itaxT, itotalT, gtotalT float64
 	var sql string
 
-	if vat {
-		sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+	if raw {
+		sql = fmt.Sprintf("select * from sales_yr_tax_raw where salesdate between '%s' and '%s'", fromDate, toDate)
 	} else {
-		sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		if vat {
+			sql = fmt.Sprintf("select * from sales_yr_tax_with_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		} else {
+			sql = fmt.Sprintf("select * from sales_yr_tax_without_vat where salesdate between '%s' and '%s'", fromDate, toDate)
+		}
 	}
 
 	rows, err := db.Query(sql)
@@ -127,11 +123,10 @@ func salesTabularPG1(db *sql.DB, vat bool, fromDate string, toDate string) {
 	fmt.Printf("\n")
 }
 
-func salesTabularPG2(db *sql.DB, vat bool, fromDate string, toDate string) {
+func salesTabularPG2(db *sql.DB, raw bool, vat bool, fromDate string, toDate string) {
 	var dsalesT, drfndT, isalesT, irfndT float64
 	var sql string
-
-	if vat {
+	if raw || vat {
 		sql = fmt.Sprintf("select salesdate, dom_sales, dom_refund, dom_total, intl_sales, intl_refund, intl_total, g_total	from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
 	} else {
 		sql = fmt.Sprintf("select salesdate, dom_sales_net, dom_refund_net, dom_total_net, intl_sales, intl_refund, intl_total, g_total_net from sales_refund where salesdate between '%s' and '%s'", fromDate, toDate)
