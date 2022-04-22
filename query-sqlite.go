@@ -67,9 +67,9 @@ func salesTabularSQ1(db *sql.DB, raw bool, vat bool, fromDate string, toDate str
 		fmt.Printf("\n                                                                                                                                     [ Raw Data ]\n")
 	} else {
 		if vat {
-			fmt.Printf("\n                                                                                                                            [ VAT: included ]\n")
+			fmt.Printf("\n                                                                                                                                [ VAT: included ]\n")
 		} else {
-			fmt.Printf("\n                                                                                                                            [ VAT: excluded ]\n")
+			fmt.Printf("\n                                                                                                                                [ VAT: excluded ]\n")
 		}
 	}
 	fmt.Printf("-------------------------------------------------------------------------------------------------------------------------------------------------\n")
