@@ -46,27 +46,6 @@ func QuerySalesPG(raw bool, vat bool, fromDate string, toDate string) {
 	salesTabularPG2(db, raw, vat, fromDate, toDate)
 }
 
-func salesRawPG(db *sql.DB, fromDate string, toDate string) {
-	sqlStr := fmt.Sprintf(`select salesdate, agencytype, fop, fopdesc, domintl, salesrefund, ccy, amount, krwamt
-	from sales where salesdate between '%s' and '%s'`, fromDate, toDate)
-	rows, err := db.Query(sqlStr)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%-10s %-14s %-10s %-30s %-4s %-6s %3s %14s %12s\n",
-		"Date", "AgencyType", "FOP", "FOP Desc", "DomIntl", "S_R", "Ccy", "Amount", "KrwAmount")
-	fmt.Println("---------- -------------- ---------- -------------------- ---- ------ --- -------------- ------------")
-	for rows.Next() {
-		err := rows.Scan(&salesdate, &agencytype, &fop, &fopdesc, &domintl, &salesrefund, &ccy, &amount, &krwamt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%-10s %-14s %-10s %-30s %-4s %-6s %3s %14.2f %12.0f\n",
-			salesdate[0:10], agencytype, fop, fopdesc, domintl, salesrefund, ccy, amount, krwamt)
-	}
-	fmt.Printf("\n")
-}
-
 func salesTabularPG1(db *sql.DB, raw bool, vat bool, fromDate string, toDate string) {
 	var dsalesT, dyrT, dtaxT, dtotalT, isalesT, iyrT, itaxT, itotalT, gtotalT float64
 	var sql string
