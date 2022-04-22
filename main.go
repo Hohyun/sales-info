@@ -46,8 +46,8 @@ func main() {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 				ImportCsvPgTaxYr(strings.Replace(flgSrc, ".", "_taxyr.", 1))
 			}
-			QuerySalesPG(flgRaw, flgVat, flgFrom, flgTo)
-			ExportCsvPG(flgDst, flgRaw, flgVat, flgFrom, flgTo)
+			QuerySalesPG(true, false, flgFrom, flgTo)
+			ExportCsvPG(flgDst, true, false, flgFrom, flgTo)
 		} else {
 			if flgGubun == "sales" {
 				ImportCsvSqSales(cfg)
