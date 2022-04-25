@@ -17,15 +17,12 @@ func main() {
 	if flgHelp || len(args) != 1 { // there should be only one action command.
 		DisplayUsage()
 	}
-
 	if flgFrom == "" {
 		flgFrom = getDefautFromDate()
 	}
 	if flgTo == "" {
 		flgTo = getDefautToDate()
 	}
-
-	backend := strings.ToLower(cfg.Database)
 	action := args[0]
 
 	switch action {
@@ -37,7 +34,7 @@ func main() {
 		FetchFiles(flgFrom, flgTo)
 		ConvertData("sales", strings.Replace(flgIn, ".", "_sales.", 1), strings.Replace(flgOut, ".", "_sales.", 1))
 		ConvertData("taxyr", strings.Replace(flgIn, ".", "_taxyr.", 1), strings.Replace(flgOut, ".", "_taxyr.", 1))
-		if backend == "postgresql" {
+		if flgDB == "pg" {
 			if flgGubun == "sales" {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 			} else if flgGubun == "taxyr" {
@@ -71,7 +68,7 @@ func main() {
 		}
 
 	case "import":
-		if backend == "postgresql" {
+		if flgDB == "pg" {
 			if flgGubun == "sales" {
 				ImportCsvPgSales(strings.Replace(flgSrc, ".", "_sales.", 1))
 			} else if flgGubun == "taxyr" {
@@ -91,13 +88,13 @@ func main() {
 			}
 		}
 	case "export":
-		if backend == "postgresql" {
+		if flgDB == "pg" {
 			ExportCsvPG(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		} else {
 			ExportCsvSQ(flgDst, flgRaw, flgVat, flgFrom, flgTo)
 		}
 	case "query":
-		if backend == "postgresql" {
+		if flgDB == "pg" {
 			QuerySalesPG(flgRaw, flgVat, flgFrom, flgTo)
 		} else {
 			QuerySalesSQ(flgRaw, flgVat, flgFrom, flgTo)

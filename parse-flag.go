@@ -9,6 +9,7 @@ import (
 
 var (
 	flgHelp  bool
+	flgDB    string
 	flgGubun string
 	flgFrom  string
 	flgTo    string
@@ -26,6 +27,7 @@ var (
 func ParseCmdLineFlags(cfg Config) {
 	d := cfg.Data.DirName
 	flag.BoolVar(&flgHelp, "help", false, "show help")
+	flag.StringVar(&flgDB, "db", "sq", "sq or pg")
 	flag.StringVar(&flgGubun, "gubun", "", "sales or taxyr")
 	flag.StringVar(&flgFrom, "from", "", "from date (yyyy-mm-dd, default: yesterday)")
 	flag.StringVar(&flgTo, "to", "", "to date (yyyy-mm-dd, default: yesterday) ")
@@ -43,15 +45,15 @@ func ParseCmdLineFlags(cfg Config) {
 // DisplayUsage shows how to use program.
 func DisplayUsage() {
 	fmt.Println("Usage: sales-info")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                            ")
-	fmt.Println("         -gubun sales|taxyr -id ******* -pswd ********                  ] download |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                ] fetch    |")
-	fmt.Println("       [ -gubun sales|taxyr -in filename -out filename                  ] convert  |")
-	fmt.Println("       [ -gubun sales|taxyr -src filename                               ] import   |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat                      ] query    |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat -dst filename        ] export   |")
-	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat -dst filename        ] all       ")
-	fmt.Println(" * all : fetch -> convert -> import -> query -> export                              ")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                               ")
+	fmt.Println("         -gubun sales|taxyr -id ******* -pswd ********                     ] download |")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd                                   ] fetch    |")
+	fmt.Println("       [ -gubun sales|taxyr -in filename -out filename                     ] convert  |")
+	fmt.Println("       [ -gubun sales|taxyr -src filename -db sq|pg                        ] import   |")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat -db sq|pg               ] query    |")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat -db sq|pg -dst filename ] export   |")
+	fmt.Println("       [ -from yyyy-mm-dd -to yyyy-mm-dd -raw -vat -db sq|pg -dst filename ] all       ")
+	fmt.Println(" * all : fetch -> convert -> import -> query -> export                                 ")
 	flag.PrintDefaults()
 	os.Exit(0)
 }
